@@ -5,7 +5,8 @@ from CTFd.utils import get_config
 from CTFd.utils.user import get_current_user
 from CTFd.plugins import register_plugin_assets_directory
 from .models import CertificateSettings, CertificateHistory
-from .certificate_generator import generate_certificate_pdf
+# PDF生成機能は動的インポートで遅延読み込み
+# from .certificate_generator import generate_certificate_pdf
 import os
 from datetime import datetime
 
@@ -40,7 +41,7 @@ def load(app):
             
             db.session.commit()
             flash('証明書設定が保存されました', 'success')
-            return redirect(url_for('admin_certificates'))
+            return redirect('/admin/certificates')
         
         # 設定を取得
         settings = CertificateSettings.query.first()
@@ -82,6 +83,9 @@ def load(app):
         
         # 証明書を生成
         try:
+            # reportlabの動的インポート
+            from .certificate_generator import generate_certificate_pdf
+            
             file_path = generate_certificate_pdf(
                 user_name=user.name,
                 team_name=team_name,
