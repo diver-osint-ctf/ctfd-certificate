@@ -1,0 +1,117 @@
+.certificate-card {
+    border: 2px solid #007bff;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.certificate-card .card-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+}
+
+.certificate-btn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.certificate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.certificate-history-table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.certificate-history-table th {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+}
+
+.certificate-history-table td {
+    padding: 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.certificate-icon {
+    color: #ffc107;
+    font-size: 1.2em;
+}
+
+.loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.certificate-preview {
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    background: #f8f9fa;
+}
+
+.admin-certificate-settings {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.admin-certificate-settings .form-control {
+    border-radius: 5px;
+    border: 2px solid #dee2e6;
+    transition: border-color 0.3s ease;
+}
+
+.admin-certificate-settings .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.3);
+}
+
+.color-picker-preview {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #dee2e6;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.certificate-stats {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+}
+
+.certificate-stats .stat-number {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.certificate-stats .stat-label {
+    font-size: 0.9em;
+    opacity: 0.9;
+}

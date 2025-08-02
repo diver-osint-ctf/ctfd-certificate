@@ -1,0 +1,102 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>証明書設定</h1>
+            <p class="text-muted">CTF証明書のデザインと設定を管理します</p>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">証明書設定</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="ctf_title">CTFタイトル</label>
+                            <input type="text" class="form-control" id="ctf_title" name="ctf_title" 
+                                   value="{{ settings.ctf_title if settings.ctf_title else 'CTF Certificate' }}" 
+                                   placeholder="CTF Certificate">
+                            <small class="form-text text-muted">証明書に表示されるCTFの名前</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="template_type">テンプレートタイプ</label>
+                            <select class="form-control" id="template_type" name="template_type">
+                                <option value="default" {{ 'selected' if settings.template_type == 'default' else '' }}>デフォルト</option>
+                                <option value="modern" {{ 'selected' if settings.template_type == 'modern' else '' }}>モダン</option>
+                                <option value="classic" {{ 'selected' if settings.template_type == 'classic' else '' }}>クラシック</option>
+                            </select>
+                            <small class="form-text text-muted">証明書のデザインテンプレート</small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="background_color">背景色</label>
+                                    <input type="color" class="form-control" id="background_color" name="background_color" 
+                                           value="{{ settings.background_color if settings.background_color else '#ffffff' }}">
+                                    <small class="form-text text-muted">証明書の背景色</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="text_color">文字色</label>
+                                    <input type="color" class="form-control" id="text_color" name="text_color" 
+                                           value="{{ settings.text_color if settings.text_color else '#000000' }}">
+                                    <small class="form-text text-muted">証明書の文字色</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="footer_text">フッターテキスト</label>
+                            <textarea class="form-control" id="footer_text" name="footer_text" rows="3" 
+                                      placeholder="証明書下部に表示される追加テキスト">{{ settings.footer_text if settings.footer_text else '' }}</textarea>
+                            <small class="form-text text-muted">証明書の下部に表示される追加情報</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">設定を保存</button>
+                            <a href="{{ url_for('admin.index') }}" class="btn btn-secondary">戻る</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title">プレビュー</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        証明書は以下の情報を含みます：
+                    </p>
+                    <ul>
+                        <li>ユーザー名</li>
+                        <li>チーム名（該当する場合）</li>
+                        <li>スコア</li>
+                        <li>順位</li>
+                        <li>発行日</li>
+                    </ul>
+                    <p class="text-muted">
+                        ユーザーはプロフィールページから証明書を生成・ダウンロードできます。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // カラーピッカーのプレビュー機能
+    $('#background_color, #text_color').on('change', function() {
+        // 将来的にプレビュー機能を追加
+    });
+});
+</script>
+{% endblock %}
