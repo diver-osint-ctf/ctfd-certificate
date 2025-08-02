@@ -1,11 +1,11 @@
 #!/bin/bash
 
-FILE=$(dirname $0)
-cd $FILE/..
+SCRIPT_DIR=$(dirname "$0")
+cd "$SCRIPT_DIR"
 
 CTFD_DIR=~/Desktop/CTFd
 
-yes | cp -r $FILE/ctfd_certificate $CTFD_DIR/CTFd/plugins/ctfd_certificate
+yes | cp -r ./ctfd_certificate $CTFD_DIR/CTFd/plugins/ctfd_certificate
 
 pushd $CTFD_DIR
 
