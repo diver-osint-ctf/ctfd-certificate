@@ -1,7 +1,7 @@
 {
     "name": "CTFd Certificate Generator",
     "author": "Claude Code",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "CTFの完了者に証明書を発行するプラグイン",
     "requirements": [
         "reportlab>=3.6.0"
