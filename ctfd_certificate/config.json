@@ -3,11 +3,7 @@
     "author": "Claude Code",
     "version": "1.0.1",
     "description": "CTFの完了者に証明書を発行するプラグイン",
-    "route": "/admin/certificates",
     "requirements": [
         "reportlab>=3.6.0"
-    ],
-    "config": {
-        "enabled": true
-    }
+    ]
 }
