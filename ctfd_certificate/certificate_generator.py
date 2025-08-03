@@ -73,12 +73,12 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         story = []
         styles = getSampleStyleSheet()
         
-        # カスタムスタイルを作成
+        # カスタムスタイルを作成（コンパクト版）
         title_style = ParagraphStyle(
             'CustomTitle',
             parent=styles['Title'],
-            fontSize=36,
-            spaceAfter=30,
+            fontSize=30,
+            spaceAfter=15,
             textColor=text_color,
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
@@ -87,8 +87,8 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         heading_style = ParagraphStyle(
             'CustomHeading',
             parent=styles['Heading1'],
-            fontSize=28,
-            spaceAfter=20,
+            fontSize=24,
+            spaceAfter=12,
             textColor=text_color,
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
@@ -97,8 +97,8 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         normal_style = ParagraphStyle(
             'CustomNormal',
             parent=styles['Normal'],
-            fontSize=16,
-            spaceAfter=12,
+            fontSize=14,
+            spaceAfter=8,
             textColor=text_color,
             alignment=TA_CENTER,
             fontName='Helvetica'
@@ -106,22 +106,22 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         
         # 証明書のタイトル
         story.append(Paragraph("Certificate of Achievement", title_style))
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 12))
         
         # CTFタイトル
         story.append(Paragraph(f"<b>{ctf_title}</b>", heading_style))
-        story.append(Spacer(1, 30))
+        story.append(Spacer(1, 15))
         
         # 受賞者情報
         story.append(Paragraph("This is to certify that", normal_style))
-        story.append(Spacer(1, 10))
+        story.append(Spacer(1, 8))
         
         # ユーザー名（大きく表示）
         user_style = ParagraphStyle(
             'UserName',
             parent=styles['Title'],
-            fontSize=32,
-            spaceAfter=20,
+            fontSize=26,
+            spaceAfter=12,
             textColor=text_color,
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
@@ -131,11 +131,11 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         # チーム名（該当する場合）
         if team_name:
             story.append(Paragraph(f"representing team <b>{team_name}</b>", normal_style))
-            story.append(Spacer(1, 15))
+            story.append(Spacer(1, 8))
         
         # 成績情報
         story.append(Paragraph("has successfully participated in this Capture The Flag competition", normal_style))
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 12))
         
         # スコアと順位のテーブル
         if template_type == 'modern':
@@ -145,49 +145,49 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
                 ['Final Rank:', f'{rank}{_get_ordinal_suffix(rank)} place']
             ]
         else:
-            # デフォルトスタイル: 詳細なレイアウト
+            # デフォルトスタイル: コンパクトなレイアウト（発行日は最下部に統一）
             data = [
                 ['Achievement Details', ''],
                 ['Final Score:', f'{score} points'],
-                ['Final Rank:', f'{rank}{_get_ordinal_suffix(rank)} place'],
-                ['Date:', datetime.now().strftime('%B %d, %Y')]
+                ['Final Rank:', f'{rank}{_get_ordinal_suffix(rank)} place']
             ]
         
-        table = Table(data, colWidths=[8*cm, 8*cm])
+        table = Table(data, colWidths=[7*cm, 7*cm])
         table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 14),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
             ('TEXTCOLOR', (0, 0), (-1, -1), text_color),
             ('GRID', (0, 1), (-1, -1), 1, text_color),
         ]))
         
         story.append(table)
-        story.append(Spacer(1, 40))
+        story.append(Spacer(1, 15))
         
-        # フッターテキスト
+        # フッターテキストと発行日を統合してスペースを節約
         if footer_text:
             footer_style = ParagraphStyle(
                 'Footer',
                 parent=styles['Normal'],
-                fontSize=12,
+                fontSize=10,
                 textColor=text_color,
                 alignment=TA_CENTER,
-                fontName='Helvetica-Oblique'
+                fontName='Helvetica-Oblique',
+                spaceAfter=8
             )
             story.append(Paragraph(footer_text, footer_style))
+            story.append(Spacer(1, 8))
         
         # 発行日
         issue_date_style = ParagraphStyle(
             'IssueDate',
             parent=styles['Normal'],
-            fontSize=10,
+            fontSize=9,
             textColor=text_color,
             alignment=TA_CENTER,
             fontName='Helvetica'
         )
-        story.append(Spacer(1, 20))
         story.append(Paragraph(f"Issued on {datetime.now().strftime('%B %d, %Y')}", issue_date_style))
         
         # PDFをビルド
