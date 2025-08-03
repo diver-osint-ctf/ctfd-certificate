@@ -74,8 +74,7 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         styles = getSampleStyleSheet()
         
         # 証明書ボーダーを描画するためのカスタムDrawingクラス
-        from reportlab.platypus import Drawing
-        from reportlab.graphics.shapes import Rect, String
+        from reportlab.graphics.shapes import Drawing, Rect
         from reportlab.graphics import renderPDF
         
         # エレガントなボーダーの作成
