@@ -73,35 +73,11 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         story = []
         styles = getSampleStyleSheet()
         
-        # 証明書ボーダーを描画するためのカスタムDrawingクラス
-        from reportlab.graphics.shapes import Drawing, Rect
-        from reportlab.graphics import renderPDF
-        
-        # エレガントなボーダーの作成
-        border_drawing = Drawing(25*cm, 18*cm)  # A4横向きサイズ
-        
-        # 外側のボーダー（太い線）
-        border_drawing.add(Rect(0.3*cm, 0.3*cm, 24.4*cm, 17.4*cm, 
-                               strokeColor=HexColor('#2c5282'), strokeWidth=3, fillColor=None))
-        
-        # 内側のボーダー（細い線）
-        border_drawing.add(Rect(0.6*cm, 0.6*cm, 23.8*cm, 16.8*cm, 
-                               strokeColor=HexColor('#4299e1'), strokeWidth=1, fillColor=None))
-        
-        # 装飾的なコーナー
-        corner_size = 0.4*cm
-        for x, y in [(0.6*cm, 16.8*cm), (23.8*cm, 16.8*cm), (0.6*cm, 0.6*cm), (23.8*cm, 0.6*cm)]:
-            border_drawing.add(Rect(x-corner_size/2, y-corner_size/2, corner_size, corner_size,
-                                   strokeColor=HexColor('#2c5282'), strokeWidth=2, fillColor=HexColor('#e6f3ff')))
-        
-        story.append(border_drawing)
-        story.append(Spacer(1, -16*cm))  # ボーダーの上にコンテンツを配置
-        
         # プロフェッショナルなスタイル定義
         cert_title_style = ParagraphStyle(
             'CertificateTitle',
             parent=styles['Title'],
-            fontSize=36,
+            fontSize=32,
             spaceAfter=8,
             textColor=HexColor('#1a365d'),
             alignment=TA_CENTER,
@@ -111,8 +87,8 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         subtitle_style = ParagraphStyle(
             'Subtitle',
             parent=styles['Normal'],
-            fontSize=16,
-            spaceAfter=20,
+            fontSize=14,
+            spaceAfter=15,
             textColor=HexColor('#4a5568'),
             alignment=TA_CENTER,
             fontName='Helvetica-Oblique'
@@ -121,8 +97,8 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         ctf_title_style = ParagraphStyle(
             'CTFTitle',
             parent=styles['Heading1'],
-            fontSize=28,
-            spaceAfter=25,
+            fontSize=24,
+            spaceAfter=20,
             textColor=HexColor('#2c5282'),
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
@@ -131,8 +107,8 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         presenter_style = ParagraphStyle(
             'Presenter',
             parent=styles['Normal'],
-            fontSize=16,
-            spaceAfter=10,
+            fontSize=14,
+            spaceAfter=8,
             textColor=HexColor('#4a5568'),
             alignment=TA_CENTER,
             fontName='Helvetica'
@@ -141,8 +117,8 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         recipient_style = ParagraphStyle(
             'Recipient',
             parent=styles['Title'],
-            fontSize=32,
-            spaceAfter=15,
+            fontSize=28,
+            spaceAfter=12,
             textColor=HexColor('#1a365d'),
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
@@ -151,8 +127,8 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         team_style = ParagraphStyle(
             'Team',
             parent=styles['Normal'],
-            fontSize=18,
-            spaceAfter=20,
+            fontSize=16,
+            spaceAfter=15,
             textColor=HexColor('#2c5282'),
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
@@ -161,19 +137,32 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         achievement_style = ParagraphStyle(
             'Achievement',
             parent=styles['Normal'],
-            fontSize=14,
-            spaceAfter=15,
+            fontSize=12,
+            spaceAfter=10,
             textColor=HexColor('#4a5568'),
             alignment=TA_CENTER,
             fontName='Helvetica'
         )
         
         # 上部の余白
-        story.append(Spacer(1, 1.5*cm))
+        story.append(Spacer(1, 1*cm))
+        
+        # 装飾的なヘッダーライン
+        header_line_data = [['', '', '']]
+        header_line_table = Table(header_line_data, colWidths=[2*cm, 20*cm, 2*cm])
+        header_line_table.setStyle(TableStyle([
+            ('LINEBELOW', (1, 0), (1, 0), 3, HexColor('#2c5282')),
+        ]))
+        story.append(header_line_table)
+        story.append(Spacer(1, 8))
         
         # 証明書タイトル
         story.append(Paragraph("CERTIFICATE", cert_title_style))
         story.append(Paragraph("OF EXCELLENCE", subtitle_style))
+        
+        # 装飾ライン
+        story.append(header_line_table)
+        story.append(Spacer(1, 10))
         
         # CTFタイトル
         story.append(Paragraph(ctf_title, ctf_title_style))
@@ -191,7 +180,7 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         # 成果の説明
         story.append(Paragraph("for outstanding performance and dedication in cybersecurity challenges", achievement_style))
         
-        # エレガントなアチーブメントボックス
+        # コンパクトなアチーブメントボックス
         achievement_data = [
             ['Achievement Summary', ''],
             ['Final Score', f'{score} points'],
@@ -199,26 +188,25 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
             ['Competition Date', datetime.now().strftime('%B %Y')]
         ]
         
-        achievement_table = Table(achievement_data, colWidths=[6*cm, 6*cm])
+        achievement_table = Table(achievement_data, colWidths=[5*cm, 5*cm])
         achievement_table.setStyle(TableStyle([
             # ヘッダー行
             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 16),
+            ('FONTSIZE', (0, 0), (-1, 0), 14),
             ('TEXTCOLOR', (0, 0), (-1, 0), HexColor('#1a365d')),
             ('SPAN', (0, 0), (1, 0)),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 15),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
             
             # データ行
             ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
             ('FONTNAME', (1, 1), (1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 14),
+            ('FONTSIZE', (0, 1), (-1, -1), 12),
             ('TEXTCOLOR', (0, 1), (0, -1), HexColor('#2c5282')),
             ('TEXTCOLOR', (1, 1), (1, -1), HexColor('#4a5568')),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [HexColor('#f7fafc'), None]),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 10),
-            ('TOPPADDING', (0, 1), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+            ('TOPPADDING', (0, 1), (-1, -1), 8),
             
             # ボーダー
             ('BOX', (0, 0), (-1, -1), 2, HexColor('#2c5282')),
@@ -226,15 +214,15 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
             ('LINEBEFORE', (1, 1), (1, -1), 1, HexColor('#e2e8f0')),
         ]))
         
-        story.append(Spacer(1, 10))
+        story.append(Spacer(1, 8))
         story.append(achievement_table)
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 15))
         
         # 署名欄とフッター
         signature_style = ParagraphStyle(
             'Signature',
             parent=styles['Normal'],
-            fontSize=12,
+            fontSize=11,
             textColor=HexColor('#4a5568'),
             alignment=TA_CENTER,
             fontName='Helvetica'
@@ -242,40 +230,49 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         
         # 認証文
         story.append(Paragraph("This certificate validates the recipient's cybersecurity expertise", signature_style))
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 10))
         
         # 署名欄のテーブル
         signature_data = [
-            ['_' * 25, '_' * 25],
+            ['_' * 20, '_' * 20],
             ['Certificate Authority', 'Date of Issue'],
             ['', f"{datetime.now().strftime('%B %d, %Y')}"]
         ]
         
-        signature_table = Table(signature_data, colWidths=[6*cm, 6*cm])
+        signature_table = Table(signature_data, colWidths=[5*cm, 5*cm])
         signature_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),
             ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 11),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
             ('TEXTCOLOR', (0, 0), (-1, -1), HexColor('#4a5568')),
-            ('BOTTOMPADDING', (0, 0), (0, 0), 5),
-            ('TOPPADDING', (0, 1), (-1, 1), 5),
+            ('BOTTOMPADDING', (0, 0), (0, 0), 3),
+            ('TOPPADDING', (0, 1), (-1, 1), 3),
             ('BOTTOMPADDING', (0, 1), (-1, 1), 2),
         ]))
         
         story.append(signature_table)
+        
+        # 下部装飾ライン
+        story.append(Spacer(1, 10))
+        footer_line_data = [['', '', '']]
+        footer_line_table = Table(footer_line_data, colWidths=[2*cm, 20*cm, 2*cm])
+        footer_line_table.setStyle(TableStyle([
+            ('LINEABOVE', (1, 0), (1, 0), 3, HexColor('#2c5282')),
+        ]))
+        story.append(footer_line_table)
         
         # フッターテキスト（管理者設定）
         if footer_text:
             footer_final_style = ParagraphStyle(
                 'FooterFinal',
                 parent=styles['Normal'],
-                fontSize=10,
+                fontSize=9,
                 textColor=HexColor('#4a5568'),
                 alignment=TA_CENTER,
                 fontName='Helvetica-Oblique'
             )
-            story.append(Spacer(1, 10))
+            story.append(Spacer(1, 8))
             story.append(Paragraph(footer_text, footer_final_style))
         
         # PDFをビルド
