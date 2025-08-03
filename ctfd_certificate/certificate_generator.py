@@ -1,169 +1,276 @@
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4, landscape
-from reportlab.lib.units import inch
-from reportlab.lib.colors import HexColor, black, white
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import Paragraph
+"""
+CTFd Certificate Generator
+PDF certificate generation functionality using ReportLab
+"""
+
 import os
 import tempfile
 from datetime import datetime
+from io import BytesIO
+
+# ReportLabの動的インポート
+try:
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib.units import inch, cm
+    from reportlab.lib.colors import HexColor, black, white
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT
+    from reportlab.pdfgen import canvas
+    from reportlab.lib import colors
+    REPORTLAB_AVAILABLE = True
+except ImportError:
+    REPORTLAB_AVAILABLE = False
 
 
 def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, settings=None):
     """
-    証明書PDFを生成する
+    PDF証明書を生成する
     
     Args:
         user_name (str): ユーザー名
-        team_name (str): チーム名
+        team_name (str): チーム名（Noneの場合は個人参加）
         score (int): スコア
         rank (int): 順位
         ctf_title (str): CTFのタイトル
-        settings (CertificateSettings): 証明書設定
+        settings (CertificateSettings): 証明書設定オブジェクト
     
     Returns:
         str: 生成されたPDFファイルのパス
+    
+    Raises:
+        ImportError: ReportLabが利用できない場合
+        Exception: PDF生成に失敗した場合
     """
+    if not REPORTLAB_AVAILABLE:
+        raise ImportError("ReportLab library is not available. Please install reportlab>=3.6.0")
+    
+    # 設定の取得（デフォルト値を設定）
+    template_type = settings.template_type if settings else 'default'
+    background_color = HexColor(settings.background_color) if settings and settings.background_color else white
+    text_color = HexColor(settings.text_color) if settings and settings.text_color else black
+    footer_text = settings.footer_text if settings and settings.footer_text else ''
+    
     # 一時ファイルを作成
-    temp_dir = tempfile.mkdtemp()
+    temp_dir = tempfile.gettempdir()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"certificate_{user_name}_{timestamp}.pdf"
     file_path = os.path.join(temp_dir, filename)
     
-    # デフォルト設定
-    bg_color = HexColor(settings.background_color if settings else '#ffffff')
-    text_color = HexColor(settings.text_color if settings else '#000000')
-    
-    # PDFを作成（横向きA4）
-    c = canvas.Canvas(file_path, pagesize=landscape(A4))
-    width, height = landscape(A4)
-    
-    # 背景色を設定
-    c.setFillColor(bg_color)
-    c.rect(0, 0, width, height, fill=1)
-    
-    # 枠線を描画
-    c.setStrokeColor(text_color)
-    c.setLineWidth(3)
-    margin = 30
-    c.rect(margin, margin, width - 2*margin, height - 2*margin)
-    
-    # 装飾的な内側の枠線
-    c.setLineWidth(1)
-    inner_margin = margin + 15
-    c.rect(inner_margin, inner_margin, width - 2*inner_margin, height - 2*inner_margin)
-    
-    # テキストの描画
-    c.setFillColor(text_color)
-    
-    # タイトル
-    c.setFont("Helvetica-Bold", 36)
-    title_text = "Certificate of Achievement"
-    title_width = c.stringWidth(title_text, "Helvetica-Bold", 36)
-    c.drawString((width - title_width) / 2, height - 120, title_text)
-    
-    # CTFタイトル
-    c.setFont("Helvetica-Bold", 24)
-    ctf_width = c.stringWidth(ctf_title, "Helvetica-Bold", 24)
-    c.drawString((width - ctf_width) / 2, height - 170, ctf_title)
-    
-    # "This certifies that" テキスト
-    c.setFont("Helvetica", 16)
-    certifies_text = "This certifies that"
-    certifies_width = c.stringWidth(certifies_text, "Helvetica", 16)
-    c.drawString((width - certifies_width) / 2, height - 220, certifies_text)
-    
-    # ユーザー名（大きく、太字）
-    c.setFont("Helvetica-Bold", 28)
-    user_width = c.stringWidth(user_name, "Helvetica-Bold", 28)
-    c.drawString((width - user_width) / 2, height - 270, user_name)
-    
-    # チーム名（ある場合）
-    if team_name:
-        c.setFont("Helvetica", 18)
-        team_text = f"Team: {team_name}"
-        team_width = c.stringWidth(team_text, "Helvetica", 18)
-        c.drawString((width - team_width) / 2, height - 310, team_text)
-        y_offset = 350
-    else:
-        y_offset = 320
-    
-    # 成績情報
-    c.setFont("Helvetica", 16)
-    achievement_text = f"has successfully completed the challenges with a score of {score} points"
-    achievement_width = c.stringWidth(achievement_text, "Helvetica", 16)
-    c.drawString((width - achievement_width) / 2, height - y_offset, achievement_text)
-    
-    # 順位情報
-    rank_text = f"achieving rank #{rank}"
-    rank_width = c.stringWidth(rank_text, "Helvetica", 16)
-    c.drawString((width - rank_width) / 2, height - y_offset - 30, rank_text)
-    
-    # 日付
-    c.setFont("Helvetica", 14)
-    date_text = f"Date: {datetime.now().strftime('%B %d, %Y')}"
-    date_width = c.stringWidth(date_text, "Helvetica", 14)
-    c.drawString((width - date_width) / 2, height - y_offset - 80, date_text)
-    
-    # フッターテキスト（設定がある場合）
-    if settings and settings.footer_text:
-        c.setFont("Helvetica", 10)
-        footer_width = c.stringWidth(settings.footer_text, "Helvetica", 10)
-        c.drawString((width - footer_width) / 2, 60, settings.footer_text)
-    
-    # 装飾的な要素を追加
-    # 左上の星
-    draw_star(c, 100, height - 100, 20, text_color)
-    # 右上の星
-    draw_star(c, width - 100, height - 100, 20, text_color)
-    # 左下の星
-    draw_star(c, 100, 100, 20, text_color)
-    # 右下の星
-    draw_star(c, width - 100, 100, 20, text_color)
-    
-    # PDFを保存
-    c.save()
-    
-    return file_path
-
-
-def draw_star(canvas, x, y, size, color):
-    """星形を描画する補助関数"""
-    canvas.setFillColor(color)
-    canvas.setStrokeColor(color)
-    
-    # 簡単な星形を描画
-    points = []
-    for i in range(10):
-        angle = i * 36 * 3.14159 / 180  # 36度ずつ回転
-        if i % 2 == 0:
-            # 外側の点
-            px = x + size * 0.8 * cos_approx(angle)
-            py = y + size * 0.8 * sin_approx(angle)
+    # PDF生成
+    try:
+        # A4横向き
+        doc = SimpleDocTemplate(
+            file_path,
+            pagesize=landscape(A4),
+            rightMargin=2*cm,
+            leftMargin=2*cm,
+            topMargin=2*cm,
+            bottomMargin=2*cm
+        )
+        
+        # ストーリー（PDFコンテンツ）を構築
+        story = []
+        styles = getSampleStyleSheet()
+        
+        # カスタムスタイルを作成
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Title'],
+            fontSize=36,
+            spaceAfter=30,
+            textColor=text_color,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold'
+        )
+        
+        heading_style = ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading1'],
+            fontSize=28,
+            spaceAfter=20,
+            textColor=text_color,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold'
+        )
+        
+        normal_style = ParagraphStyle(
+            'CustomNormal',
+            parent=styles['Normal'],
+            fontSize=16,
+            spaceAfter=12,
+            textColor=text_color,
+            alignment=TA_CENTER,
+            fontName='Helvetica'
+        )
+        
+        # 証明書のタイトル
+        story.append(Paragraph("Certificate of Achievement", title_style))
+        story.append(Spacer(1, 20))
+        
+        # CTFタイトル
+        story.append(Paragraph(f"<b>{ctf_title}</b>", heading_style))
+        story.append(Spacer(1, 30))
+        
+        # 受賞者情報
+        story.append(Paragraph("This is to certify that", normal_style))
+        story.append(Spacer(1, 10))
+        
+        # ユーザー名（大きく表示）
+        user_style = ParagraphStyle(
+            'UserName',
+            parent=styles['Title'],
+            fontSize=32,
+            spaceAfter=20,
+            textColor=text_color,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold'
+        )
+        story.append(Paragraph(f"<u>{user_name}</u>", user_style))
+        
+        # チーム名（該当する場合）
+        if team_name:
+            story.append(Paragraph(f"representing team <b>{team_name}</b>", normal_style))
+            story.append(Spacer(1, 15))
+        
+        # 成績情報
+        story.append(Paragraph("has successfully participated in this Capture The Flag competition", normal_style))
+        story.append(Spacer(1, 20))
+        
+        # スコアと順位のテーブル
+        if template_type == 'modern':
+            # モダンスタイル: シンプルなレイアウト
+            data = [
+                ['Final Score:', f'{score} points'],
+                ['Final Rank:', f'{rank}{_get_ordinal_suffix(rank)} place']
+            ]
         else:
-            # 内側の点
-            px = x + size * 0.3 * cos_approx(angle)
-            py = y + size * 0.3 * sin_approx(angle)
-        points.extend([px, py])
+            # デフォルトスタイル: 詳細なレイアウト
+            data = [
+                ['Achievement Details', ''],
+                ['Final Score:', f'{score} points'],
+                ['Final Rank:', f'{rank}{_get_ordinal_suffix(rank)} place'],
+                ['Date:', datetime.now().strftime('%B %d, %Y')]
+            ]
+        
+        table = Table(data, colWidths=[8*cm, 8*cm])
+        table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 14),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('TEXTCOLOR', (0, 0), (-1, -1), text_color),
+            ('GRID', (0, 1), (-1, -1), 1, text_color),
+        ]))
+        
+        story.append(table)
+        story.append(Spacer(1, 40))
+        
+        # フッターテキスト
+        if footer_text:
+            footer_style = ParagraphStyle(
+                'Footer',
+                parent=styles['Normal'],
+                fontSize=12,
+                textColor=text_color,
+                alignment=TA_CENTER,
+                fontName='Helvetica-Oblique'
+            )
+            story.append(Paragraph(footer_text, footer_style))
+        
+        # 発行日
+        issue_date_style = ParagraphStyle(
+            'IssueDate',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=text_color,
+            alignment=TA_CENTER,
+            fontName='Helvetica'
+        )
+        story.append(Spacer(1, 20))
+        story.append(Paragraph(f"Issued on {datetime.now().strftime('%B %d, %Y')}", issue_date_style))
+        
+        # PDFをビルド
+        doc.build(story)
+        
+        print(f"Certificate generated successfully: {file_path}")
+        return file_path
+        
+    except Exception as e:
+        # エラーが発生した場合、作成されたファイルを削除
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except:
+                pass
+        raise Exception(f"Failed to generate PDF certificate: {str(e)}")
+
+
+def _get_ordinal_suffix(n):
+    """
+    数字に序数詞接尾辞を追加する（例: 1st, 2nd, 3rd, 4th）
     
-    # パスを作成して描画
-    path = canvas.beginPath()
-    path.moveTo(points[0], points[1])
-    for i in range(2, len(points), 2):
-        path.lineTo(points[i], points[i+1])
-    path.closePath()
-    canvas.drawPath(path, fill=1, stroke=1)
+    Args:
+        n (int): 数字
+    
+    Returns:
+        str: 序数詞接尾辞
+    """
+    if 10 <= n % 100 <= 20:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+    return suffix
 
 
-def cos_approx(angle):
-    """コサインの近似値"""
-    import math
-    return math.cos(angle)
+def cleanup_old_certificates(max_age_days=30):
+    """
+    古い証明書ファイルをクリーンアップする
+    
+    Args:
+        max_age_days (int): 保持期間（日数）
+    """
+    try:
+        temp_dir = tempfile.gettempdir()
+        current_time = datetime.now()
+        
+        for filename in os.listdir(temp_dir):
+            if filename.startswith('certificate_') and filename.endswith('.pdf'):
+                file_path = os.path.join(temp_dir, filename)
+                try:
+                    file_time = datetime.fromtimestamp(os.path.getctime(file_path))
+                    age_days = (current_time - file_time).days
+                    
+                    if age_days > max_age_days:
+                        os.remove(file_path)
+                        print(f"Cleaned up old certificate: {filename}")
+                        
+                except Exception as e:
+                    print(f"Error cleaning up certificate {filename}: {e}")
+                    
+    except Exception as e:
+        print(f"Error during certificate cleanup: {e}")
 
 
-def sin_approx(angle):
-    """サインの近似値"""
-    import math
-    return math.sin(angle)
+# テスト用関数
+def test_certificate_generation():
+    """証明書生成のテスト関数"""
+    try:
+        file_path = generate_certificate_pdf(
+            user_name="Test User",
+            team_name="Test Team",
+            score=1500,
+            rank=1,
+            ctf_title="Test CTF 2024",
+            settings=None
+        )
+        print(f"Test certificate generated: {file_path}")
+        return file_path
+    except Exception as e:
+        print(f"Test failed: {e}")
+        return None
+
+
+if __name__ == "__main__":
+    # テスト実行
+    test_certificate_generation()

@@ -12,7 +12,8 @@
                     <h5 class="card-title">証明書設定</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" autocomplete="off" class="w-100">
+                        <input type="hidden" name="nonce" value="{{ nonce }}">
                         <div class="form-group">
                             <label for="ctf_title">CTFタイトル</label>
                             <input type="text" class="form-control" id="ctf_title" name="ctf_title" 

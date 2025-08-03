@@ -5,7 +5,11 @@ cd "$SCRIPT_DIR"
 
 CTFD_DIR=~/Desktop/CTFd
 
-yes | cp -r ./ctfd_certificate $CTFD_DIR/CTFd/plugins/ctfd_certificate
+# 古いプラグインディレクトリを削除
+rm -rf $CTFD_DIR/CTFd/plugins/ctfd_certificate
+
+# 新しいプラグインをコピー
+cp -r ./ctfd_certificate $CTFD_DIR/CTFd/plugins/ctfd_certificate
 
 pushd $CTFD_DIR
 
