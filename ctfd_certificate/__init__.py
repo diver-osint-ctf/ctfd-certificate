@@ -7,8 +7,6 @@ from CTFd.utils import get_config
 from CTFd.utils.user import get_current_user
 from CTFd.plugins import register_plugin_assets_directory
 from .models import CertificateSettings, CertificateHistory
-# PDF生成機能は動的インポートで遅延読み込み
-# from .certificate_generator import generate_certificate_pdf
 import os
 from datetime import datetime
 
