@@ -18,9 +18,75 @@ print("=== CTFd Certificate Plugin: All imports completed! ===")
 def load(app):
     print("=== CTFd Certificate Plugin: Load function called! ===")
     
-    # データベーステーブルを作成
+    # データベーステーブルを作成・マイグレーション
     try:
+        # 手動でテーブル作成とカラム追加を実行
+        from sqlalchemy import text
+        with app.db.engine.connect() as conn:
+            # 既存のテーブル構造を確認
+            try:
+                result = conn.execute(text("DESCRIBE certificate_history"))
+                columns = [row[0] for row in result]
+                print(f"Current certificate_history columns: {columns}")
+                
+                # certificate_tokenカラムが存在しない場合は追加
+                if 'certificate_token' not in columns:
+                    print("Adding certificate_token column to certificate_history table")
+                    # まずはUNIQUE制約なしでカラムを追加
+                    conn.execute(text("""
+                        ALTER TABLE certificate_history 
+                        ADD COLUMN certificate_token VARCHAR(32) DEFAULT NULL
+                    """))
+                    conn.commit()
+                    print("certificate_token column added successfully")
+                
+            except Exception as e:
+                print(f"Table might not exist yet: {e}")
+        
+        # 全テーブル作成
         app.db.create_all()
+        
+        # 既存のデータをマイグレーション
+        from .models import CertificateHistory, TeamCertificateToken, generate_certificate_token
+        
+        try:
+            # 新しいテーブル構造のための移行処理
+            existing_teams_with_certs = app.db.session.query(CertificateHistory.team_id).filter(
+                CertificateHistory.team_id.isnot(None)
+            ).distinct().all()
+            
+            if existing_teams_with_certs:
+                print(f"Creating team tokens for {len(existing_teams_with_certs)} teams...")
+                for team_id_tuple in existing_teams_with_certs:
+                    team_id = team_id_tuple[0]
+                    
+                    # チームトークンが既に存在するかチェック
+                    existing_token = TeamCertificateToken.query.filter_by(team_id=team_id).first()
+                    if not existing_token:
+                        # 新しいチームトークンを作成
+                        team_token = TeamCertificateToken(team_id=team_id)
+                        app.db.session.add(team_token)
+                
+                app.db.session.commit()
+                print("Team token migration completed")
+                
+        except Exception as e:
+            print(f"Team token migration skipped due to error: {e}")
+            
+        # 古いcertificate_tokenカラムの削除は手動で行う
+        try:
+            with app.db.engine.connect() as conn:
+                result = conn.execute(text("DESCRIBE certificate_history"))
+                columns = [row[0] for row in result]
+                
+                if 'certificate_token' in columns:
+                    print("Removing deprecated certificate_token column from certificate_history")
+                    conn.execute(text("ALTER TABLE certificate_history DROP COLUMN certificate_token"))
+                    conn.commit()
+                    print("Deprecated column removed successfully")
+        except Exception as e:
+            print(f"Column removal skipped: {e}")
+        
         print("Database tables created successfully")
     except Exception as e:
         print(f"Error creating database tables: {e}")
@@ -77,10 +143,18 @@ def load(app):
         
         return render_template('certificate_admin.html', settings=settings)
     
+    def get_ordinal_suffix(n):
+        """数字に序数詞接尾辞を追加する（例: 1st, 2nd, 3rd, 4th）"""
+        if 10 <= n % 100 <= 20:
+            suffix = 'th'
+        else:
+            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+        return suffix
+    
     @certificate_blueprint.route('/certificates/generate', methods=['POST'])
     @authed_only
     def generate_certificate():
-        """証明書を生成"""
+        """証明書を生成（HTML表示に変更）"""
         user = get_current_user()
         if not user:
             return jsonify({'error': 'ユーザーが見つかりません'}), 400
@@ -108,41 +182,95 @@ def load(app):
         settings = CertificateSettings.query.first()
         ctf_title = settings.ctf_title if settings else get_config('ctf_name', 'CTF')
         
-        # 証明書を生成
         try:
-            # reportlabの動的インポート
-            from .certificate_generator import generate_certificate_pdf
+            if not team:
+                return jsonify({'error': 'チームに所属していないユーザーは証明書を生成できません'}), 400
             
-            file_path = generate_certificate_pdf(
-                user_name=user.name,
-                team_name=team_name,
-                score=user_score,
-                rank=user_rank,
-                ctf_title=ctf_title,
-                settings=settings
-            )
+            # チームの既存証明書を削除（チームごとに1つのみ保持）
+            existing_certificates = CertificateHistory.query.filter_by(team_id=team.id).all()
+            for cert in existing_certificates:
+                db.session.delete(cert)
             
-            # 履歴に保存
+            # チームトークンを取得または作成
+            from .models import TeamCertificateToken
+            team_token = TeamCertificateToken.query.filter_by(team_id=team.id).first()
+            if not team_token:
+                team_token = TeamCertificateToken(team_id=team.id)
+                db.session.add(team_token)
+            else:
+                # 新しいトークンを生成（古いトークンを無効化）
+                team_token.token = generate_certificate_token()
+                team_token.updated_at = datetime.utcnow()
+            
+            # 新しい証明書を保存
             history = CertificateHistory(
                 user_id=user.id,
-                team_id=team.id if team else None,
+                team_id=team.id,
                 user_name=user.name,
                 team_name=team_name,
                 score=user_score,
                 rank=user_rank,
                 ctf_title=ctf_title,
-                file_path=file_path
+                file_path=''  # HTMLの場合は空文字列
             )
             db.session.add(history)
             db.session.commit()
             
             return jsonify({
                 'success': True,
-                'download_url': url_for('certificate.download_certificate', cert_id=history.id)
+                'view_url': url_for('certificate.view_certificate', token=team_token.token)
             })
         
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Certificate generation failed: {error_details}")
             return jsonify({'error': f'証明書の生成に失敗しました: {str(e)}'}), 500
+    
+    @certificate_blueprint.route('/certificates/<token>')
+    def view_certificate(token):
+        """HTML証明書を表示（チームトークンベース認証）"""
+        from .models import TeamCertificateToken
+        
+        # チームトークンから証明書を検索
+        team_token = TeamCertificateToken.query.filter_by(token=token).first()
+        if not team_token:
+            from flask import abort
+            abort(404)
+        
+        # そのチームの最新の証明書を取得
+        certificate = CertificateHistory.query.filter_by(
+            team_id=team_token.team_id
+        ).order_by(CertificateHistory.generated_at.desc()).first()
+        
+        if not certificate:
+            from flask import abort
+            abort(404)
+        
+        # CTFロゴのURLを取得
+        logo_url = None
+        try:
+            logo_path = get_config("ctf_logo")
+            if logo_path:
+                logo_url = url_for('views.files', path=logo_path)
+        except Exception as e:
+            print(f"Failed to get logo URL: {e}")
+        
+        # 設定を取得
+        settings = CertificateSettings.query.first()
+        
+        return render_template('certificate_display.html',
+            user_name=certificate.user_name,
+            team_name=certificate.team_name,
+            score=certificate.score,
+            rank=certificate.rank,
+            ctf_title=certificate.ctf_title,
+            logo_url=logo_url,
+            footer_text=settings.footer_text if settings else '',
+            competition_date=datetime.now().strftime('%B %Y'),
+            issue_date=certificate.generated_at.strftime('%B %d, %Y'),
+            get_ordinal_suffix=get_ordinal_suffix
+        )
     
     @certificate_blueprint.route('/certificates/download/<int:cert_id>')
     @authed_only
@@ -207,5 +335,7 @@ def load(app):
     
     # デバッグ: ルート登録後を確認
     print("CTFd Certificate Plugin: Routes registered")
-    print(f"App routes after: {[rule.rule for rule in app.url_map.iter_rules() if 'certificate' in rule.rule]}")
+    certificate_routes = [rule.rule for rule in app.url_map.iter_rules() if 'certificate' in rule.rule]
+    print(f"App routes after: {certificate_routes}")
+    print(f"Total certificate routes: {len(certificate_routes)}")
     print("Plugin loaded successfully!")

@@ -13,7 +13,7 @@ try:
     from reportlab.lib.pagesizes import A4, landscape
     from reportlab.lib.units import inch, cm
     from reportlab.lib.colors import HexColor, black, white
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.enums import TA_CENTER, TA_LEFT
     from reportlab.pdfgen import canvas
@@ -21,6 +21,43 @@ try:
     REPORTLAB_AVAILABLE = True
 except ImportError:
     REPORTLAB_AVAILABLE = False
+
+
+def get_ctf_logo_path():
+    """
+    CTFdからロゴ画像のパスを取得する
+    
+    Returns:
+        str: ロゴファイルの物理パス（存在しない場合はNone）
+    """
+    try:
+        # CTFdのconfigからロゴ設定を取得
+        from CTFd.utils import get_config
+        logo_path = get_config("ctf_logo")
+        
+        if not logo_path:
+            return None
+        
+        # CTFdのファイルアップロード場所を確認
+        # 通常はCTFd/uploads配下に保存される
+        import os
+        possible_paths = [
+            f"/opt/CTFd/CTFd/uploads/{logo_path}",
+            f"/opt/CTFd/uploads/{logo_path}",
+            f"uploads/{logo_path}",
+            logo_path  # 絶対パスの場合
+        ]
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                return path
+        
+        print(f"Logo file not found at any expected location: {logo_path}")
+        return None
+        
+    except Exception as e:
+        print(f"Failed to get CTF logo: {e}")
+        return None
 
 
 def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, settings=None):
@@ -99,7 +136,7 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
             parent=styles['Heading1'],
             fontSize=24,
             spaceAfter=20,
-            textColor=HexColor('#2c5282'),
+            textColor=HexColor('#B8860B'),
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
         )
@@ -129,7 +166,7 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
             parent=styles['Normal'],
             fontSize=16,
             spaceAfter=15,
-            textColor=HexColor('#2c5282'),
+            textColor=HexColor('#B8860B'),
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
         )
@@ -144,17 +181,58 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
             fontName='Helvetica'
         )
         
-        # 上部の余白
-        story.append(Spacer(1, 1*cm))
+        # 上部の余白を削減
+        story.append(Spacer(1, 0.3*cm))
         
         # 装飾的なヘッダーライン
         header_line_data = [['', '', '']]
         header_line_table = Table(header_line_data, colWidths=[2*cm, 20*cm, 2*cm])
         header_line_table.setStyle(TableStyle([
-            ('LINEBELOW', (1, 0), (1, 0), 3, HexColor('#2c5282')),
+            ('LINEBELOW', (1, 0), (1, 0), 3, HexColor('#FFD700')),
         ]))
         story.append(header_line_table)
         story.append(Spacer(1, 8))
+        
+        # CTFロゴの取得と配置
+        logo_path = get_ctf_logo_path()
+        if logo_path:
+            try:
+                # ロゴ画像をテーブル内に配置（左上配置）
+                logo_data = [
+                    [Image(logo_path, width=2*cm, height=1.5*cm), '', '']
+                ]
+                logo_table = Table(logo_data, colWidths=[3*cm, 15*cm, 6*cm])
+                logo_table.setStyle(TableStyle([
+                    ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+                    ('VALIGN', (0, 0), (0, 0), 'TOP'),
+                ]))
+                story.append(logo_table)
+                story.append(Spacer(1, 0.2*cm))
+            except Exception as e:
+                print(f"Failed to add logo image: {e}")
+                # フォールバック: テキストロゴ
+                logo_style = ParagraphStyle(
+                    'Logo',
+                    parent=styles['Normal'],
+                    fontSize=18,
+                    spaceAfter=10,
+                    textColor=HexColor('#B8860B'),
+                    alignment=TA_CENTER,
+                    fontName='Helvetica-Bold'
+                )
+                story.append(Paragraph("🏆 CTF LOGO 🏆", logo_style))
+        else:
+            # ロゴが見つからない場合のフォールバック
+            logo_style = ParagraphStyle(
+                'Logo',
+                parent=styles['Normal'],
+                fontSize=18,
+                spaceAfter=10,
+                textColor=HexColor('#B8860B'),
+                alignment=TA_CENTER,
+                fontName='Helvetica-Bold'
+            )
+            story.append(Paragraph("🏆 CTF LOGO 🏆", logo_style))
         
         # 証明書タイトル
         story.append(Paragraph("CERTIFICATE", cert_title_style))
@@ -203,14 +281,14 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
             ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
             ('FONTNAME', (1, 1), (1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 1), (-1, -1), 12),
-            ('TEXTCOLOR', (0, 1), (0, -1), HexColor('#2c5282')),
+            ('TEXTCOLOR', (0, 1), (0, -1), HexColor('#B8860B')),
             ('TEXTCOLOR', (1, 1), (1, -1), HexColor('#4a5568')),
             ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
             ('TOPPADDING', (0, 1), (-1, -1), 8),
             
             # ボーダー
-            ('BOX', (0, 0), (-1, -1), 2, HexColor('#2c5282')),
-            ('LINEBELOW', (0, 0), (-1, 0), 2, HexColor('#2c5282')),
+            ('BOX', (0, 0), (-1, -1), 2, HexColor('#FFD700')),
+            ('LINEBELOW', (0, 0), (-1, 0), 2, HexColor('#FFD700')),
             ('LINEBEFORE', (1, 1), (1, -1), 1, HexColor('#e2e8f0')),
         ]))
         
@@ -232,33 +310,13 @@ def generate_certificate_pdf(user_name, team_name, score, rank, ctf_title, setti
         story.append(Paragraph("This certificate validates the recipient's cybersecurity expertise", signature_style))
         story.append(Spacer(1, 10))
         
-        # 署名欄のテーブル
-        signature_data = [
-            ['_' * 20, '_' * 20],
-            ['Certificate Authority', 'Date of Issue'],
-            ['', f"{datetime.now().strftime('%B %d, %Y')}"]
-        ]
-        
-        signature_table = Table(signature_data, colWidths=[5*cm, 5*cm])
-        signature_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),
-            ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('TEXTCOLOR', (0, 0), (-1, -1), HexColor('#4a5568')),
-            ('BOTTOMPADDING', (0, 0), (0, 0), 3),
-            ('TOPPADDING', (0, 1), (-1, 1), 3),
-            ('BOTTOMPADDING', (0, 1), (-1, 1), 2),
-        ]))
-        
-        story.append(signature_table)
         
         # 下部装飾ライン
         story.append(Spacer(1, 10))
         footer_line_data = [['', '', '']]
         footer_line_table = Table(footer_line_data, colWidths=[2*cm, 20*cm, 2*cm])
         footer_line_table.setStyle(TableStyle([
-            ('LINEABOVE', (1, 0), (1, 0), 3, HexColor('#2c5282')),
+            ('LINEABOVE', (1, 0), (1, 0), 3, HexColor('#FFD700')),
         ]))
         story.append(footer_line_table)
         

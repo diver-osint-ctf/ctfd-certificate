@@ -4,28 +4,27 @@
     <div class="card-header">
         <h5 class="card-title">
             <i class="fas fa-certificate"></i>
-            証明書
+            Certificate
         </h5>
     </div>
     <div class="card-body">
-        <p class="card-text">CTFの完了証明書を生成してダウンロードできます。</p>
+        <p class="card-text">You can generate and download a certificate for completing a CTF.</p>
         <button id="generate-certificate-btn" class="btn btn-primary">
             <i class="fas fa-download"></i>
-            証明書を生成
+            Generate Certificate
         </button>
         <a href="{{ url_for('certificate.certificate_history') }}" class="btn btn-outline-secondary ml-2">
             <i class="fas fa-history"></i>
-            生成履歴
+            Certificate History
         </a>
     </div>
 </div>
 
-<!-- 生成状況を表示するモーダル -->
 <div class="modal fade" id="certificateModal" tabindex="-1" role="dialog" aria-labelledby="certificateModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="certificateModalLabel">証明書生成</h5>
+                <h5 class="modal-title" id="certificateModalLabel">Generate Certificate</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -36,29 +35,29 @@
                         <div class="spinner-border text-primary" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
-                        <p class="mt-2">証明書を生成中...</p>
+                        <p class="mt-2">Generating Certificate...</p>
                     </div>
                 </div>
                 <div id="certificate-success" style="display: none;">
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle"></i>
-                        証明書が正常に生成されました！
+                        Certificate generated successfully!
                     </div>
-                    <p>証明書をダウンロードできます。</p>
+                    <p>You can download the certificate.</p>
                 </div>
                 <div id="certificate-error" style="display: none;">
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle"></i>
-                        証明書の生成に失敗しました。
+                        Failed to generate certificate.
                     </div>
                     <p id="error-message"></p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <a id="download-certificate-btn" href="#" class="btn btn-primary" style="display: none;">
                     <i class="fas fa-download"></i>
-                    ダウンロード
+                    Download
                 </a>
             </div>
         </div>

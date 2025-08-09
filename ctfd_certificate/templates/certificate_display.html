@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ ctf_title }} - Certificate</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Lato', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #f5f5f5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .certificate-container {
+            background: white;
+            width: 800px;
+            height: 600px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            border: 8px solid #FFD700;
+            border-radius: 20px;
+        }
+        
+        .certificate-border {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 3px solid #B8860B;
+            border-radius: 15px;
+        }
+        
+        .logo-section {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 80px;
+            height: 60px;
+        }
+        
+        .logo-section img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .certificate-header {
+            text-align: center;
+            padding-top: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .certificate-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: #1a365d;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+        
+        .certificate-subtitle {
+            font-size: 16px;
+            color: #4a5568;
+            font-style: italic;
+            margin: 5px 0 20px 0;
+        }
+        
+        .decorative-line {
+            width: 300px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            margin: 0 auto;
+        }
+        
+        .ctf-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #B8860B;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .presentation-text {
+            text-align: center;
+            font-size: 16px;
+            color: #4a5568;
+            margin: 20px 0 10px 0;
+        }
+        
+        .recipient-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a365d;
+            text-align: center;
+            margin: 10px 0;
+            text-decoration: underline;
+            text-decoration-color: #B8860B;
+            text-underline-offset: 8px;
+        }
+        
+        .team-info {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #B8860B;
+            margin: 15px 0;
+        }
+        
+        .achievement-text {
+            text-align: center;
+            font-size: 14px;
+            color: #4a5568;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        
+        .achievement-summary {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f5f7fa 100%);
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            width: 400px;
+        }
+        
+        .achievement-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a365d;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .achievement-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .achievement-item {
+            text-align: center;
+        }
+        
+        .achievement-label {
+            font-weight: 700;
+            color: #B8860B;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .achievement-value {
+            color: #4a5568;
+            font-size: 14px;
+        }
+        
+        .signature-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 50px;
+        }
+        
+        .signature-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .signature-line {
+            border-bottom: 2px solid #4a5568;
+            width: 150px;
+            margin: 0 auto 10px auto;
+        }
+        
+        .signature-label {
+            font-size: 12px;
+            color: #4a5568;
+            font-weight: 400;
+        }
+        
+        .signature-value {
+            font-size: 13px;
+            color: #1a365d;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+        
+        .footer-text {
+            text-align: center;
+            font-size: 11px;
+            color: #4a5568;
+            font-style: italic;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #FFD700;
+        }
+        
+        .action-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .action-button {
+            background: #FFD700;
+            color: #1a365d;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+        }
+        
+        .action-button:hover {
+            background: #B8860B;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .tweet-button {
+            background: #1DA1F2;
+            color: white;
+            box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
+        }
+        
+        .tweet-button:hover {
+            background: #0d8bd9;
+            color: white;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .action-buttons {
+                display: none;
+            }
+            
+            .certificate-container {
+                box-shadow: none;
+                margin: 0;
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .certificate-container {
+                width: 95%;
+                height: auto;
+                padding: 20px;
+            }
+            
+            .certificate-title {
+                font-size: 32px;
+            }
+            
+            .recipient-name {
+                font-size: 28px;
+            }
+            
+            .achievement-summary {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="action-buttons">
+        <button class="action-button" onclick="window.print()">🖨️ 印刷/保存</button>
+        <button class="action-button tweet-button" onclick="shareOnTwitter()">🐦 ツイート</button>
+    </div>
+    
+    <div class="certificate-container">
+        <div class="certificate-border"></div>
+        
+        <!-- CTFロゴ -->
+        {% if logo_url %}
+        <div class="logo-section">
+            <img src="{{ logo_url }}" alt="CTF Logo">
+        </div>
+        {% endif %}
+        
+        <!-- 証明書ヘッダー -->
+        <div class="certificate-header">
+            <h1 class="certificate-title">CERTIFICATE</h1>
+            <p class="certificate-subtitle">OF EXCELLENCE</p>
+            <div class="decorative-line"></div>
+        </div>
+        
+        <!-- CTFタイトル -->
+        <h2 class="ctf-title">{{ ctf_title }}</h2>
+        
+        <!-- 授与文 -->
+        <p class="presentation-text">This certificate is proudly presented to</p>
+        
+        <!-- 受賞者名 -->
+        <div class="recipient-name">{{ user_name }}</div>
+        
+        <!-- チーム情報 -->
+        {% if team_name %}
+        <div class="team-info">Member of Team: {{ team_name }}</div>
+        {% endif %}
+        
+        <!-- 成果説明 -->
+        <p class="achievement-text">
+            for outstanding performance and dedication in cybersecurity challenges
+        </p>
+        
+        <!-- 成果サマリー -->
+        <div class="achievement-summary">
+            <div class="achievement-title">Achievement Summary</div>
+            <div class="achievement-details">
+                <div class="achievement-item">
+                    <div class="achievement-label">Final Score</div>
+                    <div class="achievement-value">{{ score }} points</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-label">Final Ranking</div>
+                    <div class="achievement-value">{{ rank }}{{ get_ordinal_suffix(rank) }} place</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-label">Competition Date</div>
+                    <div class="achievement-value">{{ competition_date }}</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-label">Certificate Issue</div>
+                    <div class="achievement-value">{{ issue_date }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 認証文 -->
+        <p class="achievement-text">
+            This certificate validates the recipient's cybersecurity expertise
+        </p>
+        
+        
+        <!-- フッター -->
+        {% if footer_text %}
+        <div class="footer-text">{{ footer_text }}</div>
+        {% endif %}
+    </div>
+    
+    <script>
+        function shareOnTwitter() {
+            // ツイート用のテキストを構成
+            const tweetText = `🏆 Generated certificate for {{ ctf_title }}!\n\n` +
+                `👤 {{ user_name }}\n` +
+                {% if team_name %}`🏅 Team: {{ team_name }}\n` +{% endif %}
+                `📊 Score: {{ score }} points\n` +
+                `🥇 Rank: {{ rank }}{{ get_ordinal_suffix(rank) }} place\n\n` +
+                `#CTF #cybersecurity #certificate`;
+            
+            // 現在のページのURLを取得
+            const url = window.location.href;
+            
+            // Twitter投稿用のURLを構成
+            const twitterUrl = `https://twitter.com/intent/tweet?` +
+                `text=${encodeURIComponent(tweetText)}&` +
+                `url=${encodeURIComponent(url)}`;
+            
+            // 新しいウィンドウで開く
+            window.open(twitterUrl, '_blank', 'width=600,height=400');
+        }
+    </script>
+</body>
+</html>

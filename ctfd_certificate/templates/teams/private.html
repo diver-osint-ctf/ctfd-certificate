@@ -273,7 +273,7 @@
       <div class="text-center my-4">
         <button id="generate-certificate-btn" class="btn btn-success btn-lg">
           <i class="fas fa-certificate fa-fw"></i>
-          証明書を発行
+          Generate Certificate
         </button>
       </div>
 
@@ -510,7 +510,7 @@
         if (generateBtn) {
           generateBtn.addEventListener('click', function() {
             this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin fa-fw"></i> 証明書を生成中...';
+            this.innerHTML = '<i class="fas fa-spinner fa-spin fa-fw"></i> Generating Certificate...';
             
             const formData = new FormData();
             formData.append('nonce', window.init.csrfNonce);
@@ -523,18 +523,19 @@
             .then(response => response.json())
             .then(data => {
               if (data.success) {
-                window.location.href = data.download_url;
+                // 新しいタブで証明書を表示
+                window.open(data.view_url, '_blank');
               } else {
-                alert('エラー: ' + (data.error || '証明書の生成に失敗しました'));
+                alert('Error: ' + (data.error || 'Failed to generate certificate'));
               }
             })
             .catch(error => {
               console.error('Error:', error);
-              alert('証明書の生成に失敗しました');
+              alert('Failed to generate certificate');
             })
             .finally(() => {
               this.disabled = false;
-              this.innerHTML = '<i class="fas fa-certificate fa-fw"></i> 証明書を発行';
+              this.innerHTML = '<i class="fas fa-certificate fa-fw"></i> Generate Certificate';
             });
           });
         }
