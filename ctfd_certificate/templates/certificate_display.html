@@ -238,14 +238,14 @@
             transform: translateY(-2px);
         }
         
-        .tweet-button {
-            background: #1DA1F2;
+        .back-button {
+            background: #6c757d;
             color: white;
-            box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
         }
         
-        .tweet-button:hover {
-            background: #0d8bd9;
+        .back-button:hover {
+            background: #495057;
             color: white;
         }
         
@@ -291,8 +291,8 @@
 </head>
 <body>
     <div class="action-buttons">
-        <button class="action-button" onclick="window.print()">🖨️ 印刷/保存</button>
-        <button class="action-button tweet-button" onclick="shareOnTwitter()">🐦 ツイート</button>
+        <button class="action-button back-button" onclick="goBackToTeam()">← Back to Team Page</button>
+        <button class="action-button" onclick="window.print()">🖨️ Print/Save</button>
     </div>
     
     <div class="certificate-container">
@@ -367,25 +367,9 @@
     </div>
     
     <script>
-        function shareOnTwitter() {
-            // ツイート用のテキストを構成
-            const tweetText = `🏆 Generated certificate for {{ ctf_title }}!\n\n` +
-                `👤 {{ user_name }}\n` +
-                {% if team_name %}`🏅 Team: {{ team_name }}\n` +{% endif %}
-                `📊 Score: {{ score }} points\n` +
-                `🥇 Rank: {{ rank }}{{ get_ordinal_suffix(rank) }} place\n\n` +
-                `#CTF #cybersecurity #certificate`;
-            
-            // 現在のページのURLを取得
-            const url = window.location.href;
-            
-            // Twitter投稿用のURLを構成
-            const twitterUrl = `https://twitter.com/intent/tweet?` +
-                `text=${encodeURIComponent(tweetText)}&` +
-                `url=${encodeURIComponent(url)}`;
-            
-            // 新しいウィンドウで開く
-            window.open(twitterUrl, '_blank', 'width=600,height=400');
+        function goBackToTeam() {
+            // チームページに戻る
+            window.location.href = '/team';
         }
     </script>
 </body>
