@@ -50,9 +50,7 @@ ctfd_certificate/
 ├── test_certificate.py     # テストファイル
 ├── templates/              # HTMLテンプレート
 │   ├── certificate_admin.html
-│   ├── certificate_button.html
 │   ├── certificate_display.html
-│   ├── certificate_history.html
 │   └── teams/
 │       └── private.html
 └── assets/                 # CSS/JSファイル

@@ -269,13 +269,6 @@
         {% endif %}
       </h2>
 
-      <!-- Certificate Generation Button -->
-      <div class="text-center my-4">
-        <button id="generate-certificate-btn" class="btn btn-success btn-lg">
-          <i class="fas fa-certificate fa-fw"></i>
-          Generate Certificate
-        </button>
-      </div>
 
       <div x-data="CaptainMenu">
         <a class="edit-team text-white" @click="editTeam()">
@@ -305,6 +298,13 @@
               class="cursor-pointer fas fa-trash-alt fa-2x px-2 pt-3"
               data-bs-toggle="tooltip" data-bs-placement="top"
               title="Disband Team"
+          ></i>
+        </a>
+        <a class="generate-certificate text-white" id="generate-certificate-link">
+          <i
+              class="cursor-pointer fas fa-certificate fa-2x px-2 pt-3"
+              data-bs-toggle="tooltip" data-bs-placement="top"
+              title="Generate Certificate"
           ></i>
         </a>
       </div>
@@ -506,11 +506,11 @@
 
       // Certificate generation functionality
       document.addEventListener('DOMContentLoaded', function() {
-        const generateBtn = document.getElementById('generate-certificate-btn');
+        const generateBtn = document.getElementById('generate-certificate-link');
         if (generateBtn) {
           generateBtn.addEventListener('click', function() {
             this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin fa-fw"></i> Generating Certificate...';
+            this.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x px-2 pt-3"></i>';
             
             const formData = new FormData();
             formData.append('nonce', window.init.csrfNonce);
@@ -535,7 +535,7 @@
             })
             .finally(() => {
               this.disabled = false;
-              this.innerHTML = '<i class="fas fa-certificate fa-fw"></i> Generate Certificate';
+              this.innerHTML = '<i class="cursor-pointer fas fa-certificate fa-2x px-2 pt-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate Certificate"></i>';
             });
           });
         }
