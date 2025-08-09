@@ -1,6 +1,6 @@
 print("=== CTFd Certificate Plugin: Module is being imported! ===")
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from CTFd.utils.decorators import admins_only, authed_only
 from CTFd.models import db, Users, Teams, Solves
 from CTFd.utils import get_config
@@ -270,40 +270,7 @@ def load(app):
             get_ordinal_suffix=get_ordinal_suffix
         )
     
-    @certificate_blueprint.route('/certificates/download/<int:cert_id>')
-    @authed_only
-    def download_certificate(cert_id):
-        """証明書をダウンロード"""
-        user = get_current_user()
-        certificate = CertificateHistory.query.filter_by(
-            id=cert_id,
-            user_id=user.id
-        ).first()
-        
-        if not certificate:
-            flash('証明書が見つかりません', 'error')
-            return redirect(url_for('users.private'))
-        
-        if not os.path.exists(certificate.file_path):
-            flash('証明書ファイルが見つかりません', 'error')
-            return redirect(url_for('users.private'))
-        
-        return send_file(
-            certificate.file_path,
-            as_attachment=True,
-            download_name=f'certificate_{certificate.user_name}_{certificate.generated_at.strftime("%Y%m%d")}.pdf'
-        )
     
-    @certificate_blueprint.route('/certificates/history')
-    @authed_only
-    def certificate_history():
-        """ユーザーの証明書履歴"""
-        user = get_current_user()
-        certificates = CertificateHistory.query.filter_by(user_id=user.id).order_by(
-            CertificateHistory.generated_at.desc()
-        ).all()
-        
-        return render_template('certificate_history.html', certificates=certificates)
     
     # Blueprintを登録
     app.register_blueprint(certificate_blueprint)
