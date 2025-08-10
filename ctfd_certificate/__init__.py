@@ -272,6 +272,32 @@ def load(app):
     
     
     
+    @certificate_blueprint.route('/admin/certificates/preview')
+    @admins_only 
+    def preview_certificate():
+        """管理者用証明書プレビュー"""
+        # プレビュー用のサンプルデータ
+        sample_data = {
+            'user_name': 'Sample User',
+            'team_name': 'Sample Team', 
+            'score': 1337,
+            'rank': 1,
+            'ctf_title': 'Sample CTF 2024',
+            'logo_url': None,
+            'footer_text': 'This is a preview certificate',
+            'competition_date': datetime.now().strftime('%B %Y'),
+            'issue_date': datetime.now().strftime('%B %d, %Y'),
+            'get_ordinal_suffix': get_ordinal_suffix
+        }
+        
+        # 現在の設定を適用
+        settings = CertificateSettings.query.first()
+        if settings:
+            sample_data['ctf_title'] = settings.ctf_title or 'Sample CTF 2024'
+            sample_data['footer_text'] = settings.footer_text or 'This is a preview certificate'
+        
+        return render_template('certificate_display.html', **sample_data)
+
     # Blueprintを登録
     app.register_blueprint(certificate_blueprint)
     

@@ -68,22 +68,31 @@
             
             <div class="card mt-4">
                 <div class="card-header">
-                    <h5 class="card-title">Preview</h5>
+                    <h5 class="card-title">Certificate Preview</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">
-                        The certificate includes the following information:
+                    <p class="text-muted mb-3">
+                        Preview how the certificate will look with the current settings:
                     </p>
-                    <ul>
-                        <li>User Name</li>
-                        <li>Team Name (if applicable)</li>
-                        <li>Score</li>
-                        <li>Rank</li>
-                        <li>発行日</li>
-                    </ul>
-                    <p class="text-muted">
-                        Users can generate and download certificates from their profile page.
-                    </p>
+                    <div class="certificate-preview-container" style="border: 2px solid #dee2e6; border-radius: 8px; background: #f8f9fa; padding: 10px;">
+                        <iframe 
+                            id="certificate-preview-iframe"
+                            src="/admin/certificates/preview"
+                            width="100%" 
+                            height="600"
+                            frameborder="0"
+                            style="border-radius: 6px; background: white;"
+                            title="Certificate Preview">
+                        </iframe>
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="refreshPreview()">
+                            <i class="fas fa-sync-alt"></i> Refresh Preview
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="openPreviewInNewTab()">
+                            <i class="fas fa-external-link-alt"></i> Open in New Tab
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -94,10 +103,27 @@
 {% block scripts %}
 <script>
 $(document).ready(function() {
-    // カラーピッカーのプレビュー機能
-    $('#background_color, #text_color').on('change', function() {
-        // 将来的にプレビュー機能を追加
+    // プレビューのリアルタイム更新
+    $('#ctf_title, #template_type, #background_color, #text_color, #footer_text').on('change input', function() {
+        // 少し遅延してからプレビューを更新（連続入力を考慮）
+        clearTimeout(window.previewUpdateTimeout);
+        window.previewUpdateTimeout = setTimeout(function() {
+            refreshPreview();
+        }, 500);
     });
 });
+
+function refreshPreview() {
+    const iframe = document.getElementById('certificate-preview-iframe');
+    if (iframe) {
+        // タイムスタンプを追加してキャッシュを回避
+        const timestamp = new Date().getTime();
+        iframe.src = '/admin/certificates/preview?' + timestamp;
+    }
+}
+
+function openPreviewInNewTab() {
+    window.open('/admin/certificates/preview', '_blank');
+}
 </script>
 {% endblock %}
