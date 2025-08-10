@@ -243,14 +243,17 @@ def load(app):
             settings = CertificateSettings.query.first()
             if not settings:
                 settings = CertificateSettings()
+                # CTFdの設定からタイトルを取得してデフォルト値に設定
+                settings.ctf_title = get_config("ctf_name", "CTF Certificate")
         except Exception as e:
             print(f"Settings query error: {e}")
             # デフォルト設定でフォールバック
+            ctf_name = get_config("ctf_name", "CTF Certificate")
             settings = type(
                 "Settings",
                 (),
                 {
-                    "ctf_title": "CTF Certificate",
+                    "ctf_title": ctf_name,
                     "border_color": "#FFD700",
                     "title_color": "#1a365d",
                     "ctf_title_color": "#B8860B",
@@ -258,9 +261,13 @@ def load(app):
                 },
             )()
 
+        # CTFdの設定からタイトルを取得
+        ctf_name_from_config = get_config("ctf_name", "CTF Certificate")
+        
         context = {
             "settings": settings,
             "nonce": session["nonce"],
+            "ctf_name_from_config": ctf_name_from_config,
         }
         return render_template("certificate_admin.html", **context)
 

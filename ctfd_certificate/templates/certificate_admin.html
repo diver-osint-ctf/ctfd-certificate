@@ -1,143 +1,202 @@
-{% extends "admin/base.html" %}
-
-{% block content %}
+{% extends "admin/base.html" %} {% block content %}
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <h1>Certificate Settings</h1>
-            <p class="text-muted">Manage the design and settings of CTF certificates</p>
-            
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Certificate Settings</h5>
-                </div>
-                <div class="card-body">
-                    <form method="POST" autocomplete="off" class="w-100">
-                        <input type="hidden" name="nonce" value="{{ nonce }}">
-                        
-                        <div class="form-group">
-                            <label for="ctf_title">CTF Title</label>
-                            <input type="text" class="form-control" id="ctf_title" name="ctf_title" 
-                                   value="{{ settings.ctf_title if settings.ctf_title else 'CTF Certificate' }}" 
-                                   placeholder="CTF Certificate">
-                            <small class="form-text text-muted">The name of the CTF displayed on the certificate</small>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="border_color">Border Color</label>
-                                    <input type="color" class="form-control" id="border_color" name="border_color" 
-                                           value="{{ settings.border_color if settings.border_color else '#FFD700' }}">
-                                    <small class="form-text text-muted">The border color of the certificate</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="title_color">Title Color</label>
-                                    <input type="color" class="form-control" id="title_color" name="title_color" 
-                                           value="{{ settings.title_color if settings.title_color else '#1a365d' }}">
-                                    <small class="form-text text-muted">The main title color</small>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="ctf_title_color">CTF Title Color</label>
-                                    <input type="color" class="form-control" id="ctf_title_color" name="ctf_title_color" 
-                                           value="{{ settings.ctf_title_color if settings.ctf_title_color else '#B8860B' }}">
-                                    <small class="form-text text-muted">The CTF name title color</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="accent_color">Accent Color</label>
-                                    <input type="color" class="form-control" id="accent_color" name="accent_color" 
-                                           value="{{ settings.accent_color if settings.accent_color else '#B8860B' }}">
-                                    <small class="form-text text-muted">Used for decorative lines and highlights</small>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <input type="hidden" name="nonce" value="{{ nonce }}">
-                        <button type="submit" class="btn btn-md btn-primary float-right">Update</button>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5 class="card-title">Certificate Preview</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted mb-3">
-                        Preview how the certificate will look with the current settings:
-                    </p>
-                    <div class="certificate-preview-container" style="border: 2px solid #dee2e6; border-radius: 8px; background: #f8f9fa; padding: 10px;">
-                        <iframe 
-                            id="certificate-preview-iframe"
-                            src="/admin/certificates/preview"
-                            width="100%" 
-                            height="600"
-                            frameborder="0"
-                            style="border-radius: 6px; background: white;"
-                            title="Certificate Preview">
-                        </iframe>
-                    </div>
-                    <div class="mt-3">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="refreshPreview()">
-                            <i class="fas fa-sync-alt"></i> Refresh Preview
-                        </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="openPreviewInNewTab()">
-                            <i class="fas fa-external-link-alt"></i> Open in New Tab
-                        </button>
-                    </div>
-                </div>
-            </div>
+  <div class="row">
+    <div class="col-md-12">
+      <h1>Certificate Settings</h1>
+      <p class="text-muted">
+        Manage the design and settings of CTF certificates
+      </p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="close"
+          data-dismiss="alert"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Certificate Settings</h5>
         </div>
+        <div class="card-body">
+          <form method="POST" autocomplete="off" class="w-100">
+            <input type="hidden" name="nonce" value="{{ nonce }}" />
+
+            <div class="form-group">
+              <label for="ctf_title">CTF Title</label>
+              <input
+                type="text"
+                class="form-control"
+                id="ctf_title"
+                name="ctf_title"
+                value="{{ settings.ctf_title if settings.ctf_title else ctf_name_from_config }}"
+                placeholder="{{ ctf_name_from_config }}"
+              />
+              <small class="form-text text-muted"
+                >The name of the CTF displayed on the certificate</small
+              >
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="border_color">Border Color</label>
+                  <input
+                    type="color"
+                    class="form-control"
+                    id="border_color"
+                    name="border_color"
+                    value="{{ settings.border_color if settings.border_color else '#FFD700' }}"
+                  />
+                  <small class="form-text text-muted"
+                    >The border color of the certificate</small
+                  >
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="title_color">Title Color</label>
+                  <input
+                    type="color"
+                    class="form-control"
+                    id="title_color"
+                    name="title_color"
+                    value="{{ settings.title_color if settings.title_color else '#1a365d' }}"
+                  />
+                  <small class="form-text text-muted"
+                    >The main title color</small
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="ctf_title_color">CTF Title Color</label>
+                  <input
+                    type="color"
+                    class="form-control"
+                    id="ctf_title_color"
+                    name="ctf_title_color"
+                    value="{{ settings.ctf_title_color if settings.ctf_title_color else '#B8860B' }}"
+                  />
+                  <small class="form-text text-muted"
+                    >The CTF name title color</small
+                  >
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="accent_color">Accent Color</label>
+                  <input
+                    type="color"
+                    class="form-control"
+                    id="accent_color"
+                    name="accent_color"
+                    value="{{ settings.accent_color if settings.accent_color else '#B8860B' }}"
+                  />
+                  <small class="form-text text-muted"
+                    >Used for decorative lines and highlights</small
+                  >
+                </div>
+              </div>
+            </div>
+
+            <input type="hidden" name="nonce" value="{{ nonce }}" />
+            <button type="submit" class="btn btn-md btn-primary float-right">
+              Update
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="card-title">Certificate Preview</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-3">
+            Preview how the certificate will look with the current settings:
+          </p>
+          <div
+            class="certificate-preview-container"
+            style="
+              border: 2px solid #dee2e6;
+              border-radius: 8px;
+              background: #f8f9fa;
+              padding: 10px;
+            "
+          >
+            <iframe
+              id="certificate-preview-iframe"
+              src="/admin/certificates/preview"
+              width="100%"
+              height="600"
+              frameborder="0"
+              style="border-radius: 6px; background: white"
+              title="Certificate Preview"
+            >
+            </iframe>
+          </div>
+          <div class="mt-3">
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              onclick="refreshPreview()"
+            >
+              <i class="fas fa-sync-alt"></i> Refresh Preview
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-sm"
+              onclick="openPreviewInNewTab()"
+            >
+              <i class="fas fa-external-link-alt"></i> Open in New Tab
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script>
-$(document).ready(function() {
+  $(document).ready(function () {
     // プレビューのリアルタイム更新
-    $('#ctf_title, #border_color, #title_color, #ctf_title_color, #accent_color').on('change input', function() {
-        // 少し遅延してからプレビューを更新（連続入力を考慮）
-        clearTimeout(window.previewUpdateTimeout);
-        window.previewUpdateTimeout = setTimeout(function() {
-            refreshPreview();
-        }, 500);
+    $(
+      "#ctf_title, #border_color, #title_color, #ctf_title_color, #accent_color"
+    ).on("change input", function () {
+      // 少し遅延してからプレビューを更新（連続入力を考慮）
+      clearTimeout(window.previewUpdateTimeout);
+      window.previewUpdateTimeout = setTimeout(function () {
+        refreshPreview();
+      }, 500);
     });
-});
+  });
 
-function refreshPreview() {
-    const iframe = document.getElementById('certificate-preview-iframe');
+  function refreshPreview() {
+    const iframe = document.getElementById("certificate-preview-iframe");
     if (iframe) {
-        // タイムスタンプを追加してキャッシュを回避
-        const timestamp = new Date().getTime();
-        iframe.src = '/admin/certificates/preview?' + timestamp;
+      // タイムスタンプを追加してキャッシュを回避
+      const timestamp = new Date().getTime();
+      iframe.src = "/admin/certificates/preview?" + timestamp;
     }
-}
+  }
 
-function openPreviewInNewTab() {
-    window.open('/admin/certificates/preview', '_blank');
-}
+  function openPreviewInNewTab() {
+    window.open("/admin/certificates/preview", "_blank");
+  }
 </script>
 {% endblock %}
