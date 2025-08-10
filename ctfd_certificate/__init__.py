@@ -228,11 +228,11 @@ def load(app):
                 settings.updated_at = datetime.utcnow()
 
                 db.session.commit()
-                flash("証明書設定が保存されました", "success")
+                flash("Certificate settings saved successfully", "success")
             except Exception as e:
                 print(f"Settings save error: {e}")
                 flash(
-                    "設定の保存に失敗しました。データベースの移行が必要かもしれません。",
+                    "Failed to save settings. Database migration may be required.",
                     "error",
                 )
 
@@ -258,7 +258,11 @@ def load(app):
                 },
             )()
 
-        return render_template("certificate_admin.html", settings=settings)
+        context = {
+            "settings": settings,
+            "nonce": session["nonce"],
+        }
+        return render_template("certificate_admin.html", **context)
 
     def get_ordinal_suffix(n):
         """数字に序数詞接尾辞を追加する（例: 1st, 2nd, 3rd, 4th）"""
@@ -274,7 +278,7 @@ def load(app):
         """証明書を生成（HTML表示に変更）"""
         user = get_current_user()
         if not user:
-            return jsonify({"error": "ユーザーが見つかりません"}), 400
+            return jsonify({"error": "User not found"}), 400
 
         # ユーザーのスコアと順位を計算
         user_score = user.score
@@ -320,9 +324,7 @@ def load(app):
             if not team:
                 return (
                     jsonify(
-                        {
-                            "error": "チームに所属していないユーザーは証明書を生成できません"
-                        }
+                        {"error": "Users not in a team cannot generate certificates"}
                     ),
                     400,
                 )
@@ -374,7 +376,7 @@ def load(app):
 
             error_details = traceback.format_exc()
             print(f"Certificate generation failed: {error_details}")
-            return jsonify({"error": f"証明書の生成に失敗しました: {str(e)}"}), 500
+            return jsonify({"error": f"Failed to generate certificate: {str(e)}"}), 500
 
     @certificate_blueprint.route("/certificates/<token>")
     def view_certificate(token):
