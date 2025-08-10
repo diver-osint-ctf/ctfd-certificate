@@ -25,7 +25,7 @@
             padding: 40px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             position: relative;
-            border: 8px solid #FFD700;
+            border: 8px solid {{ border_color }};
             border-radius: 20px;
         }
         
@@ -35,7 +35,7 @@
             left: 15px;
             right: 15px;
             bottom: 15px;
-            border: 3px solid #B8860B;
+            border: 3px solid {{ accent_color }};
             border-radius: 15px;
         }
         
@@ -63,7 +63,7 @@
             font-family: 'Playfair Display', serif;
             font-size: 42px;
             font-weight: 700;
-            color: #1a365d;
+            color: {{ title_color }};
             margin: 0;
             letter-spacing: 2px;
         }
@@ -78,7 +78,7 @@
         .decorative-line {
             width: 300px;
             height: 3px;
-            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            background: linear-gradient(90deg, transparent, {{ accent_color }}, transparent);
             margin: 0 auto;
         }
         
@@ -86,7 +86,7 @@
             font-family: 'Playfair Display', serif;
             font-size: 28px;
             font-weight: 700;
-            color: #B8860B;
+            color: {{ ctf_title_color }};
             text-align: center;
             margin: 20px 0;
         }
@@ -102,11 +102,11 @@
             font-family: 'Playfair Display', serif;
             font-size: 36px;
             font-weight: 700;
-            color: #1a365d;
+            color: {{ title_color }};
             text-align: center;
             margin: 10px 0;
             text-decoration: underline;
-            text-decoration-color: #B8860B;
+            text-decoration-color: {{ accent_color }};
             text-underline-offset: 8px;
         }
         
@@ -114,7 +114,7 @@
             text-align: center;
             font-size: 18px;
             font-weight: 700;
-            color: #B8860B;
+            color: {{ ctf_title_color }};
             margin: 15px 0;
         }
         
@@ -128,7 +128,7 @@
         
         .achievement-summary {
             background: linear-gradient(135deg, #f8f9ff 0%, #f5f7fa 100%);
-            border: 2px solid #FFD700;
+            border: 2px solid {{ border_color }};
             border-radius: 10px;
             padding: 20px;
             margin: 20px auto;
@@ -139,7 +139,7 @@
             font-family: 'Playfair Display', serif;
             font-size: 18px;
             font-weight: 700;
-            color: #1a365d;
+            color: {{ title_color }};
             text-align: center;
             margin-bottom: 15px;
         }
@@ -156,7 +156,7 @@
         
         .achievement-label {
             font-weight: 700;
-            color: #B8860B;
+            color: {{ accent_color }};
             font-size: 14px;
             margin-bottom: 5px;
         }
@@ -198,15 +198,6 @@
             margin-top: 5px;
         }
         
-        .footer-text {
-            text-align: center;
-            font-size: 11px;
-            color: #4a5568;
-            font-style: italic;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 2px solid #FFD700;
-        }
         
         .action-buttons {
             position: fixed;
@@ -358,12 +349,6 @@
         <p class="achievement-text">
             This certificate validates the recipient's cybersecurity expertise
         </p>
-        
-        
-        <!-- フッター -->
-        {% if footer_text %}
-        <div class="footer-text">{{ footer_text }}</div>
-        {% endif %}
     </div>
     
     <script>
