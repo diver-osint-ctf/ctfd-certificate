@@ -9,7 +9,7 @@ CTFD_DIR=~/Desktop/CTFd
 rm -rf $CTFD_DIR/CTFd/plugins/ctfd_certificate
 
 # 新しいプラグインをコピー
-cp -r ./ctfd_certificate $CTFD_DIR/CTFd/plugins/ctfd_certificate
+cp -r ../ctfd_certificate $CTFD_DIR/CTFd/plugins/ctfd_certificate
 
 pushd $CTFD_DIR
 
