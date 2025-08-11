@@ -453,7 +453,21 @@ def load(app):
         except Exception as e:
             print(f"Failed to get logo URL: {e}")
 
-            # 設定を取得（エラーハンドリング付き）
+        # 参加チーム総数（Solveがあるチームのユニーク数。なければTeams全体数）
+        try:
+            total_teams = (
+                db.session.query(Solves.team_id)
+                .filter(Solves.team_id.isnot(None))
+                .distinct()
+                .count()
+            )
+            if not total_teams:
+                total_teams = Teams.query.count()
+        except Exception as e:
+            print(f"Failed to compute total_teams: {e}")
+            total_teams = None
+
+        # 設定を取得（エラーハンドリング付き）
         try:
             settings = CertificateSettings.query.first()
         except Exception as e:
@@ -496,6 +510,7 @@ def load(app):
             issue_date=certificate.generated_at.strftime("%B %d, %Y"),
             get_ordinal_suffix=get_ordinal_suffix,
             is_preview=False,
+            total_teams=total_teams,
         )
 
     @certificate_blueprint.route("/admin/certificates/preview")
@@ -518,10 +533,25 @@ def load(app):
             "text_color": "#111111",
             "competition_phrase": "international cybersecurity competition",
             "is_preview": True,
+            "total_teams": None,
         }
 
         # 現在の設定を適用（エラーハンドリング付き）
         try:
+            # 同様に参加チーム総数を試算
+            try:
+                total_teams = (
+                    db.session.query(Solves.team_id)
+                    .filter(Solves.team_id.isnot(None))
+                    .distinct()
+                    .count()
+                )
+                if not total_teams:
+                    total_teams = Teams.query.count()
+            except Exception as e:
+                print(f"Failed to compute total_teams (preview): {e}")
+                total_teams = None
+
             settings = CertificateSettings.query.first()
             if settings:
                 sample_data["ctf_title"] = settings.ctf_title or "Sample CTF 2024"
@@ -546,6 +576,7 @@ def load(app):
                     )
                     or "international cybersecurity competition"
                 )
+                sample_data["total_teams"] = total_teams
             else:
                 sample_data["text_color"] = "#111111"
                 sample_data["title_text"] = "CERTIFICATE OF EXCELLENCE"
@@ -555,6 +586,7 @@ def load(app):
                 sample_data["competition_phrase"] = (
                     "international cybersecurity competition"
                 )
+                sample_data["total_teams"] = total_teams
         except Exception as e:
             print(f"Settings query error in preview: {e}")
             sample_data["text_color"] = "#111111"
@@ -565,6 +597,8 @@ def load(app):
             sample_data["competition_phrase"] = (
                 "international cybersecurity competition"
             )
+            # even on error, try a safe fallback (None -> 'many')
+            sample_data["total_teams"] = None
 
         return render_template("certificate_display.html", **sample_data)
 
