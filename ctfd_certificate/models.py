@@ -17,9 +17,13 @@ class CertificateSettings(db.Model):
     accent_color = Column(String(7), default="#FFD700", nullable=False)
     # Newly added configurable fields
     text_color = Column(String(7), default="#2A2A2A", nullable=False)
-    title_text = Column(String(255), default="CERTIFICATE OF EXCELLENCE", nullable=False)
+    title_text = Column(
+        String(255), default="CERTIFICATE OF EXCELLENCE", nullable=False
+    )
     footer_text = Column(
-        String(255), default="Congratulations on your outstanding performance.", nullable=False
+        String(255),
+        default="Congratulations on your outstanding performance.",
+        nullable=False,
     )
     competition_phrase = Column(
         String(255), default="international cybersecurity competition", nullable=False

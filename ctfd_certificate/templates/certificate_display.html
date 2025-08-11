@@ -277,12 +277,14 @@
     </style>
   </head>
   <body>
+    {% if not is_preview %}
     <div class="actions">
       <button class="btn secondary" onclick="window.location.href='/team'">
         ← Back
       </button>
       <button class="btn" onclick="window.print()">🖨️ Print / Save</button>
     </div>
+    {% endif %}
 
     <div class="page">
       <div class="certificate">

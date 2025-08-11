@@ -121,8 +121,14 @@ def load(app):
                 }
                 for column_name, default_value in new_columns.items():
                     if column_name not in columns:
-                        print(f"Adding new column {column_name} to certificate_settings")
-                        col_type = "VARCHAR(255)" if column_name != "text_color" else "VARCHAR(7)"
+                        print(
+                            f"Adding new column {column_name} to certificate_settings"
+                        )
+                        col_type = (
+                            "VARCHAR(255)"
+                            if column_name != "text_color"
+                            else "VARCHAR(7)"
+                        )
                         conn.execute(
                             text(
                                 f"ALTER TABLE certificate_settings ADD COLUMN {column_name} {col_type} DEFAULT '{default_value}'"
@@ -241,12 +247,18 @@ def load(app):
 
                 settings.ctf_title = request.form.get("ctf_title", "CTF Certificate")
                 # New customizable fields
-                settings.title_text = request.form.get("title_text", settings.title_text or "CERTIFICATE OF EXCELLENCE")
+                settings.title_text = request.form.get(
+                    "title_text", settings.title_text or "CERTIFICATE OF EXCELLENCE"
+                )
                 settings.footer_text = request.form.get(
-                    "footer_text", settings.footer_text or "Congratulations on your outstanding performance."
+                    "footer_text",
+                    settings.footer_text
+                    or "Congratulations on your outstanding performance.",
                 )
                 settings.competition_phrase = request.form.get(
-                    "competition_phrase", settings.competition_phrase or "international cybersecurity competition"
+                    "competition_phrase",
+                    settings.competition_phrase
+                    or "international cybersecurity competition",
                 )
                 settings.updated_at = datetime.utcnow()
 
@@ -286,7 +298,7 @@ def load(app):
 
         # CTFdの設定からタイトルを取得
         ctf_name_from_config = get_config("ctf_name", "CTF Certificate")
-        
+
         context = {
             "settings": settings,
             "nonce": session["nonce"],
@@ -441,7 +453,7 @@ def load(app):
         except Exception as e:
             print(f"Failed to get logo URL: {e}")
 
-                # 設定を取得（エラーハンドリング付き）
+            # 設定を取得（エラーハンドリング付き）
         try:
             settings = CertificateSettings.query.first()
         except Exception as e:
@@ -457,12 +469,33 @@ def load(app):
             ctf_title=certificate.ctf_title,
             logo_url=logo_url,
             text_color="#111111",
-            title_text=(getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE") if settings else "CERTIFICATE OF EXCELLENCE"),
-            footer_text=(getattr(settings, "footer_text", "Congratulations on your outstanding performance.") if settings else "Congratulations on your outstanding performance."),
-            competition_phrase=(getattr(settings, "competition_phrase", "international cybersecurity competition") if settings else "international cybersecurity competition"),
+            title_text=(
+                getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE")
+                if settings
+                else "CERTIFICATE OF EXCELLENCE"
+            ),
+            footer_text=(
+                getattr(
+                    settings,
+                    "footer_text",
+                    "Congratulations on your outstanding performance.",
+                )
+                if settings
+                else "Congratulations on your outstanding performance."
+            ),
+            competition_phrase=(
+                getattr(
+                    settings,
+                    "competition_phrase",
+                    "international cybersecurity competition",
+                )
+                if settings
+                else "international cybersecurity competition"
+            ),
             competition_date=datetime.now().strftime("%B %Y"),
             issue_date=certificate.generated_at.strftime("%B %d, %Y"),
             get_ordinal_suffix=get_ordinal_suffix,
+            is_preview=False,
         )
 
     @certificate_blueprint.route("/admin/certificates/preview")
@@ -484,28 +517,54 @@ def load(app):
             "title_text": "CERTIFICATE OF EXCELLENCE",
             "text_color": "#111111",
             "competition_phrase": "international cybersecurity competition",
+            "is_preview": True,
         }
 
-                # 現在の設定を適用（エラーハンドリング付き）
+        # 現在の設定を適用（エラーハンドリング付き）
         try:
             settings = CertificateSettings.query.first()
             if settings:
                 sample_data["ctf_title"] = settings.ctf_title or "Sample CTF 2024"
                 sample_data["text_color"] = "#111111"
-                sample_data["title_text"] = getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE") or "CERTIFICATE OF EXCELLENCE"
-                sample_data["footer_text"] = getattr(settings, "footer_text", "Congratulations on your outstanding performance.") or "Congratulations on your outstanding performance."
-                sample_data["competition_phrase"] = getattr(settings, "competition_phrase", "international cybersecurity competition") or "international cybersecurity competition"
+                sample_data["title_text"] = (
+                    getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE")
+                    or "CERTIFICATE OF EXCELLENCE"
+                )
+                sample_data["footer_text"] = (
+                    getattr(
+                        settings,
+                        "footer_text",
+                        "Congratulations on your outstanding performance.",
+                    )
+                    or "Congratulations on your outstanding performance."
+                )
+                sample_data["competition_phrase"] = (
+                    getattr(
+                        settings,
+                        "competition_phrase",
+                        "international cybersecurity competition",
+                    )
+                    or "international cybersecurity competition"
+                )
             else:
                 sample_data["text_color"] = "#111111"
                 sample_data["title_text"] = "CERTIFICATE OF EXCELLENCE"
-                sample_data["footer_text"] = "Congratulations on your outstanding performance."
-                sample_data["competition_phrase"] = "international cybersecurity competition"
+                sample_data["footer_text"] = (
+                    "Congratulations on your outstanding performance."
+                )
+                sample_data["competition_phrase"] = (
+                    "international cybersecurity competition"
+                )
         except Exception as e:
             print(f"Settings query error in preview: {e}")
             sample_data["text_color"] = "#111111"
             sample_data["title_text"] = "CERTIFICATE OF EXCELLENCE"
-            sample_data["footer_text"] = "Congratulations on your outstanding performance."
-            sample_data["competition_phrase"] = "international cybersecurity competition"
+            sample_data["footer_text"] = (
+                "Congratulations on your outstanding performance."
+            )
+            sample_data["competition_phrase"] = (
+                "international cybersecurity competition"
+            )
 
         return render_template("certificate_display.html", **sample_data)
 

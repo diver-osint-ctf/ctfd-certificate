@@ -99,9 +99,18 @@
             </div>
 
             <input type="hidden" name="nonce" value="{{ nonce }}" />
-            <button type="submit" class="btn btn-md btn-primary float-right">
-              Update
-            </button>
+            <div class="d-flex justify-content-end">
+              <button
+                type="button"
+                class="btn btn-outline-secondary mr-2"
+                onclick="resetToDefaults()"
+              >
+                Reset
+              </button>
+              <button type="submit" class="btn btn-md btn-primary">
+                Update
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -167,6 +176,20 @@
       }
     );
   });
+
+  function resetToDefaults() {
+    const defaults = {
+      ctf_title: "{{ ctf_name_from_config }}",
+      title_text: "CERTIFICATE OF EXCELLENCE",
+      footer_text: "Congratulations on your outstanding performance.",
+      competition_phrase: "international cybersecurity competition",
+    };
+    for (const [id, val] of Object.entries(defaults)) {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    }
+    refreshPreview();
+  }
 
   function refreshPreview() {
     const iframe = document.getElementById("certificate-preview-iframe");
