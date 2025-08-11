@@ -73,10 +73,16 @@ ctfd_certificate/
 |---------|----|----|
 | id | Integer | 主キー |
 | ctf_title | String | CTFタイトル |
-| template_type | String | テンプレートタイプ |
-| background_color | String | 背景色 |
+| border_color | String | ボーダー色 |
+| title_color | String | タイトル色 |
+| ctf_title_color | String | CTFタイトル色 |
+| accent_color | String | アクセント色 |
 | text_color | String | 文字色 |
-| footer_text | Text | フッターテキスト |
+| title_text | String | タイトルテキスト |
+| footer_text | String | フッターテキスト |
+| competition_phrase | String | 競技会フレーズ |
+| created_at | DateTime | 作成日時 |
+| updated_at | DateTime | 更新日時 |
 
 ### certificate_history
 証明書の生成履歴を保存
@@ -121,10 +127,14 @@ python test_certificate.py
 ```json
 {
   "ctf_title": "Security Competition 2024",
-  "template_type": "default",
-  "background_color": "#ffffff",
-  "text_color": "#1a365d",
-  "footer_text": "Certified by Security Academy"
+  "border_color": "#FFD700",
+  "title_color": "#2D2D2D",
+  "ctf_title_color": "#C53030",
+  "accent_color": "#FFD700",
+  "text_color": "#2A2A2A",
+  "title_text": "CERTIFICATE OF EXCELLENCE",
+  "footer_text": "Congratulations on your outstanding performance.",
+  "competition_phrase": "international cybersecurity competition"
 }
 ```
 

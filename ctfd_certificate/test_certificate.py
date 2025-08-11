@@ -9,7 +9,6 @@ from datetime import datetime
 class MockSettings:
     def __init__(self):
         self.ctf_title = "Test CTF"
-        self.background_color = "#ffffff"
         self.text_color = "#000000"
         self.footer_text = "Test Footer"
 
@@ -63,15 +62,15 @@ class TestCertificateModels(unittest.TestCase):
         # CTFd環境外でのテストなのでモックデータでテスト
         settings_data = {
             "ctf_title": "Test CTF",
-            "background_color": "#ffffff",
             "text_color": "#000000",
-            "template_type": "default",
+            "title_text": "CERTIFICATE OF EXCELLENCE",
+            "footer_text": "Congratulations on your outstanding performance.",
         }
 
         # 基本的な設定データのテスト
         self.assertEqual(settings_data["ctf_title"], "Test CTF")
-        self.assertEqual(settings_data["background_color"], "#ffffff")
         self.assertEqual(settings_data["text_color"], "#000000")
+        self.assertEqual(settings_data["title_text"], "CERTIFICATE OF EXCELLENCE")
 
     def test_team_certificate_token_creation(self):
         """チーム証明書トークンのテスト（CTFd環境外）"""
