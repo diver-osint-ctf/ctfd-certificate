@@ -48,35 +48,34 @@
               >
             </div>
 
+            <hr />
+
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="border_color">Border Color</label>
+                  <label for="title_text">Certificate Title Text</label>
                   <input
-                    type="color"
+                    type="text"
                     class="form-control"
-                    id="border_color"
-                    name="border_color"
-                    value="{{ settings.border_color if settings.border_color else '#FFD700' }}"
+                    id="title_text"
+                    name="title_text"
+                    value="{{ settings.title_text or 'CERTIFICATE OF EXCELLENCE' }}"
                   />
                   <small class="form-text text-muted"
-                    >The border color of the certificate</small
+                    >e.g. CERTIFICATE OF EXCELLENCE</small
                   >
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="title_color">Title Color</label>
+                  <label for="footer_text">Footer Text</label>
                   <input
-                    type="color"
+                    type="text"
                     class="form-control"
-                    id="title_color"
-                    name="title_color"
-                    value="{{ settings.title_color if settings.title_color else '#1a365d' }}"
+                    id="footer_text"
+                    name="footer_text"
+                    value="{{ settings.footer_text or 'Congratulations on your outstanding performance.' }}"
                   />
-                  <small class="form-text text-muted"
-                    >The main title color</small
-                  >
                 </div>
               </div>
             </div>
@@ -84,31 +83,16 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="ctf_title_color">CTF Title Color</label>
+                  <label for="competition_phrase">Competition Phrase</label>
                   <input
-                    type="color"
+                    type="text"
                     class="form-control"
-                    id="ctf_title_color"
-                    name="ctf_title_color"
-                    value="{{ settings.ctf_title_color if settings.ctf_title_color else '#B8860B' }}"
+                    id="competition_phrase"
+                    name="competition_phrase"
+                    value="{{ settings.competition_phrase or 'international cybersecurity competition' }}"
                   />
                   <small class="form-text text-muted"
-                    >The CTF name title color</small
-                  >
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="accent_color">Accent Color</label>
-                  <input
-                    type="color"
-                    class="form-control"
-                    id="accent_color"
-                    name="accent_color"
-                    value="{{ settings.accent_color if settings.accent_color else '#B8860B' }}"
-                  />
-                  <small class="form-text text-muted"
-                    >Used for decorative lines and highlights</small
+                    >e.g. international cybersecurity competition</small
                   >
                 </div>
               </div>
@@ -147,8 +131,7 @@
               frameborder="0"
               style="border-radius: 6px; background: white"
               title="Certificate Preview"
-            >
-            </iframe>
+            ></iframe>
           </div>
           <div class="mt-3">
             <button
@@ -174,22 +157,20 @@
 {% endblock %} {% block scripts %}
 <script>
   $(document).ready(function () {
-    // プレビューのリアルタイム更新
-    $(
-      "#ctf_title, #border_color, #title_color, #ctf_title_color, #accent_color"
-    ).on("change input", function () {
-      // 少し遅延してからプレビューを更新（連続入力を考慮）
-      clearTimeout(window.previewUpdateTimeout);
-      window.previewUpdateTimeout = setTimeout(function () {
-        refreshPreview();
-      }, 500);
-    });
+    $("#ctf_title, #title_text, #footer_text, #competition_phrase").on(
+      "change input",
+      function () {
+        clearTimeout(window.previewUpdateTimeout);
+        window.previewUpdateTimeout = setTimeout(function () {
+          refreshPreview();
+        }, 500);
+      }
+    );
   });
 
   function refreshPreview() {
     const iframe = document.getElementById("certificate-preview-iframe");
     if (iframe) {
-      // タイムスタンプを追加してキャッシュを回避
       const timestamp = new Date().getTime();
       iframe.src = "/admin/certificates/preview?" + timestamp;
     }

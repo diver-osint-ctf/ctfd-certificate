@@ -19,6 +19,7 @@ from .models import CertificateSettings, CertificateHistory
 import os
 from datetime import datetime
 
+
 print("=== CTFd Certificate Plugin: All imports completed! ===")
 
 
@@ -95,9 +96,7 @@ def load(app):
                 old_columns = [
                     "template_type",
                     "background_color",
-                    "text_color",
                     "logo_path",
-                    "footer_text",
                 ]
                 for column_name in old_columns:
                     if column_name in columns:
@@ -108,6 +107,28 @@ def load(app):
                             )
                         )
                         print(f"{column_name} column removed successfully")
+
+                # Refresh columns list after any drops
+                result = conn.execute(text("DESCRIBE certificate_settings"))
+                columns = [row[0] for row in result]
+                print(f"certificate_settings columns after cleanup: {columns}")
+
+                new_columns = {
+                    "text_color": "#2A2A2A",
+                    "title_text": "CERTIFICATE OF EXCELLENCE",
+                    "footer_text": "Congratulations on your outstanding performance.",
+                    "competition_phrase": "international cybersecurity competition",
+                }
+                for column_name, default_value in new_columns.items():
+                    if column_name not in columns:
+                        print(f"Adding new column {column_name} to certificate_settings")
+                        col_type = "VARCHAR(255)" if column_name != "text_color" else "VARCHAR(7)"
+                        conn.execute(
+                            text(
+                                f"ALTER TABLE certificate_settings ADD COLUMN {column_name} {col_type} DEFAULT '{default_value}'"
+                            )
+                        )
+                        print(f"{column_name} added")
 
         except Exception as e:
             print(f"Certificate settings migration error: {e}")
@@ -219,12 +240,14 @@ def load(app):
                     db.session.add(settings)
 
                 settings.ctf_title = request.form.get("ctf_title", "CTF Certificate")
-                settings.border_color = request.form.get("border_color", "#FFD700")
-                settings.title_color = request.form.get("title_color", "#1a365d")
-                settings.ctf_title_color = request.form.get(
-                    "ctf_title_color", "#B8860B"
+                # New customizable fields
+                settings.title_text = request.form.get("title_text", settings.title_text or "CERTIFICATE OF EXCELLENCE")
+                settings.footer_text = request.form.get(
+                    "footer_text", settings.footer_text or "Congratulations on your outstanding performance."
                 )
-                settings.accent_color = request.form.get("accent_color", "#B8860B")
+                settings.competition_phrase = request.form.get(
+                    "competition_phrase", settings.competition_phrase or "international cybersecurity competition"
+                )
                 settings.updated_at = datetime.utcnow()
 
                 db.session.commit()
@@ -255,9 +278,9 @@ def load(app):
                 {
                     "ctf_title": ctf_name,
                     "border_color": "#FFD700",
-                    "title_color": "#1a365d",
-                    "ctf_title_color": "#B8860B",
-                    "accent_color": "#B8860B",
+                    "title_color": "#2D2D2D",
+                    "ctf_title_color": "#C53030",
+                    "accent_color": "#FFD700",
                 },
             )()
 
@@ -418,7 +441,7 @@ def load(app):
         except Exception as e:
             print(f"Failed to get logo URL: {e}")
 
-        # 設定を取得（エラーハンドリング付き）
+                # 設定を取得（エラーハンドリング付き）
         try:
             settings = CertificateSettings.query.first()
         except Exception as e:
@@ -433,26 +456,10 @@ def load(app):
             rank=certificate.rank,
             ctf_title=certificate.ctf_title,
             logo_url=logo_url,
-            border_color=(
-                settings.border_color
-                if settings and hasattr(settings, "border_color")
-                else "#FFD700"
-            ),
-            title_color=(
-                settings.title_color
-                if settings and hasattr(settings, "title_color")
-                else "#1a365d"
-            ),
-            ctf_title_color=(
-                settings.ctf_title_color
-                if settings and hasattr(settings, "ctf_title_color")
-                else "#B8860B"
-            ),
-            accent_color=(
-                settings.accent_color
-                if settings and hasattr(settings, "accent_color")
-                else "#B8860B"
-            ),
+            text_color="#111111",
+            title_text=(getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE") if settings else "CERTIFICATE OF EXCELLENCE"),
+            footer_text=(getattr(settings, "footer_text", "Congratulations on your outstanding performance.") if settings else "Congratulations on your outstanding performance."),
+            competition_phrase=(getattr(settings, "competition_phrase", "international cybersecurity competition") if settings else "international cybersecurity competition"),
             competition_date=datetime.now().strftime("%B %Y"),
             issue_date=certificate.generated_at.strftime("%B %d, %Y"),
             get_ordinal_suffix=get_ordinal_suffix,
@@ -470,40 +477,35 @@ def load(app):
             "rank": 1,
             "ctf_title": "Sample CTF 2024",
             "logo_url": None,
-            "footer_text": "This is a preview certificate",
+            "footer_text": "Congratulations on your outstanding performance.",
             "competition_date": datetime.now().strftime("%B %Y"),
             "issue_date": datetime.now().strftime("%B %d, %Y"),
             "get_ordinal_suffix": get_ordinal_suffix,
+            "title_text": "CERTIFICATE OF EXCELLENCE",
+            "text_color": "#111111",
+            "competition_phrase": "international cybersecurity competition",
         }
 
-        # 現在の設定を適用（エラーハンドリング付き）
+                # 現在の設定を適用（エラーハンドリング付き）
         try:
             settings = CertificateSettings.query.first()
             if settings:
                 sample_data["ctf_title"] = settings.ctf_title or "Sample CTF 2024"
-                sample_data["border_color"] = (
-                    getattr(settings, "border_color", "#FFD700") or "#FFD700"
-                )
-                sample_data["title_color"] = (
-                    getattr(settings, "title_color", "#1a365d") or "#1a365d"
-                )
-                sample_data["ctf_title_color"] = (
-                    getattr(settings, "ctf_title_color", "#B8860B") or "#B8860B"
-                )
-                sample_data["accent_color"] = (
-                    getattr(settings, "accent_color", "#B8860B") or "#B8860B"
-                )
+                sample_data["text_color"] = "#111111"
+                sample_data["title_text"] = getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE") or "CERTIFICATE OF EXCELLENCE"
+                sample_data["footer_text"] = getattr(settings, "footer_text", "Congratulations on your outstanding performance.") or "Congratulations on your outstanding performance."
+                sample_data["competition_phrase"] = getattr(settings, "competition_phrase", "international cybersecurity competition") or "international cybersecurity competition"
             else:
-                sample_data["border_color"] = "#FFD700"
-                sample_data["title_color"] = "#1a365d"
-                sample_data["ctf_title_color"] = "#B8860B"
-                sample_data["accent_color"] = "#B8860B"
+                sample_data["text_color"] = "#111111"
+                sample_data["title_text"] = "CERTIFICATE OF EXCELLENCE"
+                sample_data["footer_text"] = "Congratulations on your outstanding performance."
+                sample_data["competition_phrase"] = "international cybersecurity competition"
         except Exception as e:
             print(f"Settings query error in preview: {e}")
-            sample_data["border_color"] = "#FFD700"
-            sample_data["title_color"] = "#1a365d"
-            sample_data["ctf_title_color"] = "#B8860B"
-            sample_data["accent_color"] = "#B8860B"
+            sample_data["text_color"] = "#111111"
+            sample_data["title_text"] = "CERTIFICATE OF EXCELLENCE"
+            sample_data["footer_text"] = "Congratulations on your outstanding performance."
+            sample_data["competition_phrase"] = "international cybersecurity competition"
 
         return render_template("certificate_display.html", **sample_data)
 

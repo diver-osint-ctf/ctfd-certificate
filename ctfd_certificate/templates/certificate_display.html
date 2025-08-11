@@ -1,361 +1,340 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ ctf_title }} - Certificate</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap');
-        
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Playfair+Display:wght@400;700&display=swap");
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #f5f5f5;
+      }
+
+      .page {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .certificate {
+        position: relative;
+        width: min(100vw, 100vh * 1.294);
+        aspect-ratio: 1.294 / 1;
+        overflow: hidden;
+        background: radial-gradient(
+            120% 80% at 50% 50%,
+            rgba(0, 0, 0, 0.06),
+            rgba(0, 0, 0, 0.02) 40%,
+            rgba(0, 0, 0, 0) 65%
+          ),
+          linear-gradient(180deg, #fbfbf8 0%, #ffffff 40%, #faf6ed 100%);
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18),
+          0 2px 6px rgba(0, 0, 0, 0.08);
+        border-radius: 10px;
+        color: #111111; /* unify text color */
+      }
+
+      .frame {
+        position: absolute;
+        inset: 3.5%;
+        border-radius: 8px;
+      }
+      .frame::before,
+      .frame::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 8px;
+      }
+      /* glossy gold frame */
+      .frame::before {
+        border: 6px double #c8a64b;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+      }
+      .frame::after {
+        inset: 1.2%;
+        border: 2px solid rgba(0, 0, 0, 0.06);
+        border-radius: 6px;
+      }
+
+      .gild {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .gild::before,
+      .gild::after {
+        content: "";
+        position: absolute;
+        left: -10%;
+        right: -10%;
+        height: 14%;
+        opacity: 0.16;
+      }
+      .gild::before {
+        top: 26%;
+        transform: rotate(-2.5deg);
+        background: linear-gradient(
+          90deg,
+          rgba(201, 162, 39, 0),
+          rgba(201, 162, 39, 0.35),
+          rgba(255, 215, 128, 0.45),
+          rgba(201, 162, 39, 0.35),
+          rgba(201, 162, 39, 0)
+        );
+      }
+      .gild::after {
+        bottom: 22%;
+        transform: rotate(2.3deg);
+        background: linear-gradient(
+          90deg,
+          rgba(201, 162, 39, 0),
+          rgba(201, 162, 39, 0.28),
+          rgba(255, 220, 140, 0.38),
+          rgba(201, 162, 39, 0.28),
+          rgba(201, 162, 39, 0)
+        );
+      }
+
+      .corner {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        opacity: 0.18;
+        filter: saturate(1.2);
+      }
+      .corner.tl {
+        top: 4.5%;
+        left: 4.5%;
+        background: conic-gradient(
+          from 180deg,
+          #c8a64b,
+          #e6d08c 35%,
+          transparent 36%
+        );
+        border-radius: 8px 0 0 0;
+      }
+      .corner.tr {
+        top: 4.5%;
+        right: 4.5%;
+        background: conic-gradient(
+          from 270deg,
+          #c8a64b,
+          #e6d08c 35%,
+          transparent 36%
+        );
+        border-radius: 0 8px 0 0;
+      }
+      .corner.bl {
+        bottom: 4.5%;
+        left: 4.5%;
+        background: conic-gradient(
+          from 90deg,
+          #c8a64b,
+          #e6d08c 35%,
+          transparent 36%
+        );
+        border-radius: 0 0 0 8px;
+      }
+      .corner.br {
+        bottom: 4.5%;
+        right: 4.5%;
+        background: conic-gradient(
+          from 0deg,
+          #c8a64b,
+          #e6d08c 35%,
+          transparent 36%
+        );
+        border-radius: 0 0 8px 0;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        display: grid;
+        grid-template-rows: 20% 15% auto auto 15%;
+        padding: 4% 6%;
+      }
+
+      .title {
+        align-self: end;
+        justify-self: center;
+        font-family: "Playfair Display", serif;
+        font-weight: 700;
+        font-size: clamp(22px, 4.2vw, 54px);
+        letter-spacing: 0.12em;
+        color: #111111; /* unify title color */
+      }
+
+      .recipient {
+        align-self: start;
+        justify-self: center;
+        text-align: center;
+        color: inherit;
+        transform: translateY(0.6cm);
+      }
+      .recipient .label {
+        font-family: "Noto Sans JP", sans-serif;
+        font-size: clamp(12px, 1.8vw, 20px);
+        opacity: 0.75;
+        margin-bottom: 0.4em;
+      }
+      .recipient .name {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(20px, 3.6vw, 44px);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .details {
+        align-self: center;
+        justify-self: center;
+        display: grid;
+        grid-auto-flow: column;
+        gap: clamp(12px, 3vw, 40px);
+        text-align: center;
+        transform: translateY(1cm);
+      }
+      .kv {
+        min-width: 120px;
+      }
+      .kv .k {
+        font-family: "Noto Sans JP", sans-serif;
+        font-size: clamp(11px, 1.6vw, 18px);
+        color: #444;
+        letter-spacing: 0.06em;
+      }
+      .kv .v {
+        margin-top: 4px;
+        font-family: "Playfair Display", serif;
+        font-size: clamp(16px, 2.6vw, 32px);
+        font-weight: 700;
+        color: #000;
+      }
+
+      .summary {
+        align-self: start;
+        justify-self: center;
+        text-align: center;
+        font-family: "Noto Sans JP", sans-serif;
+        color: #333;
+        font-size: clamp(12px, 1.8vw, 18px);
+        margin-top: 0.2cm;
+      }
+
+      .footer {
+        align-self: center;
+        justify-self: center;
+        text-align: center;
+        font-family: "Noto Sans JP", sans-serif;
+        color: #333;
+        font-size: clamp(12px, 1.8vw, 18px);
+      }
+
+      .actions {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        appearance: none;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 14px;
+        background: #222;
+        color: #fff;
+        cursor: pointer;
+        font-family: "Noto Sans JP", sans-serif;
+      }
+      .btn.secondary {
+        background: #6c757d;
+      }
+
+      @media print {
         body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Lato', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #f5f5f5 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+          background: #fff;
         }
-        
-        .certificate-container {
-            background: white;
-            width: 800px;
-            height: 600px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative;
-            border: 8px solid {{ border_color }};
-            border-radius: 20px;
+        .actions {
+          display: none;
         }
-        
-        .certificate-border {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            border: 3px solid {{ accent_color }};
-            border-radius: 15px;
+        .certificate {
+          box-shadow: none;
+          width: 100vw;
+          height: 100vh;
         }
-        
-        .logo-section {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            width: 80px;
-            height: 60px;
-        }
-        
-        .logo-section img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        
-        .certificate-header {
-            text-align: center;
-            padding-top: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .certificate-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 42px;
-            font-weight: 700;
-            color: {{ title_color }};
-            margin: 0;
-            letter-spacing: 2px;
-        }
-        
-        .certificate-subtitle {
-            font-size: 16px;
-            color: #4a5568;
-            font-style: italic;
-            margin: 5px 0 20px 0;
-        }
-        
-        .decorative-line {
-            width: 300px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, {{ accent_color }}, transparent);
-            margin: 0 auto;
-        }
-        
-        .ctf-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: {{ ctf_title_color }};
-            text-align: center;
-            margin: 20px 0;
-        }
-        
-        .presentation-text {
-            text-align: center;
-            font-size: 16px;
-            color: #4a5568;
-            margin: 20px 0 10px 0;
-        }
-        
-        .recipient-name {
-            font-family: 'Playfair Display', serif;
-            font-size: 36px;
-            font-weight: 700;
-            color: {{ title_color }};
-            text-align: center;
-            margin: 10px 0;
-            text-decoration: underline;
-            text-decoration-color: {{ accent_color }};
-            text-underline-offset: 8px;
-        }
-        
-        .team-info {
-            text-align: center;
-            font-size: 18px;
-            font-weight: 700;
-            color: {{ ctf_title_color }};
-            margin: 15px 0;
-        }
-        
-        .achievement-text {
-            text-align: center;
-            font-size: 14px;
-            color: #4a5568;
-            margin: 20px 0;
-            line-height: 1.6;
-        }
-        
-        .achievement-summary {
-            background: linear-gradient(135deg, #f8f9ff 0%, #f5f7fa 100%);
-            border: 2px solid {{ border_color }};
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px auto;
-            width: 400px;
-        }
-        
-        .achievement-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: {{ title_color }};
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        
-        .achievement-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        .achievement-item {
-            text-align: center;
-        }
-        
-        .achievement-label {
-            font-weight: 700;
-            color: {{ accent_color }};
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        
-        .achievement-value {
-            color: #4a5568;
-            font-size: 14px;
-        }
-        
-        .signature-section {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 50px;
-        }
-        
-        .signature-item {
-            text-align: center;
-            flex: 1;
-        }
-        
-        .signature-line {
-            border-bottom: 2px solid #4a5568;
-            width: 150px;
-            margin: 0 auto 10px auto;
-        }
-        
-        .signature-label {
-            font-size: 12px;
-            color: #4a5568;
-            font-weight: 400;
-        }
-        
-        .signature-value {
-            font-size: 13px;
-            color: #1a365d;
-            font-weight: 700;
-            margin-top: 5px;
-        }
-        
-        
-        .action-buttons {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
-        
-        .action-button {
-            background: #FFD700;
-            color: #1a365d;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            font-family: 'Lato', sans-serif;
-            font-size: 14px;
-        }
-        
-        .action-button:hover {
-            background: #B8860B;
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        .back-button {
-            background: #6c757d;
-            color: white;
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-        }
-        
-        .back-button:hover {
-            background: #495057;
-            color: white;
-        }
-        
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            
-            .action-buttons {
-                display: none;
-            }
-            
-            .certificate-container {
-                box-shadow: none;
-                margin: 0;
-                width: 100%;
-                height: 100vh;
-                border-radius: 0;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .certificate-container {
-                width: 95%;
-                height: auto;
-                padding: 20px;
-            }
-            
-            .certificate-title {
-                font-size: 32px;
-            }
-            
-            .recipient-name {
-                font-size: 28px;
-            }
-            
-            .achievement-summary {
-                width: 90%;
-            }
-        }
+      }
     </style>
-</head>
-<body>
-    <div class="action-buttons">
-        <button class="action-button back-button" onclick="goBackToTeam()">← Back to Team Page</button>
-        <button class="action-button" onclick="window.print()">🖨️ Print/Save</button>
+  </head>
+  <body>
+    <div class="actions">
+      <button class="btn secondary" onclick="window.location.href='/team'">
+        ← Back
+      </button>
+      <button class="btn" onclick="window.print()">🖨️ Print / Save</button>
     </div>
-    
-    <div class="certificate-container">
-        <div class="certificate-border"></div>
-        
-        <!-- CTFロゴ -->
-        {% if logo_url %}
-        <div class="logo-section">
-            <img src="{{ logo_url }}" alt="CTF Logo">
-        </div>
-        {% endif %}
-        
-        <!-- 証明書ヘッダー -->
-        <div class="certificate-header">
-            <h1 class="certificate-title">CERTIFICATE</h1>
-            <p class="certificate-subtitle">OF EXCELLENCE</p>
-            <div class="decorative-line"></div>
-        </div>
-        
-        <!-- CTFタイトル -->
-        <h2 class="ctf-title">{{ ctf_title }}</h2>
-        
-        <!-- 授与文 -->
-        <p class="presentation-text">This certificate is proudly presented to</p>
-        
-        <!-- 受賞者名 -->
-        <div class="recipient-name">{{ user_name }}</div>
-        
-        <!-- チーム情報 -->
-        {% if team_name %}
-        <div class="team-info">Member of Team: {{ team_name }}</div>
-        {% endif %}
-        
-        <!-- 成果説明 -->
-        <p class="achievement-text">
-            for outstanding performance and dedication in cybersecurity challenges
-        </p>
-        
-        <!-- 成果サマリー -->
-        <div class="achievement-summary">
-            <div class="achievement-title">Achievement Summary</div>
-            <div class="achievement-details">
-                <div class="achievement-item">
-                    <div class="achievement-label">Final Score</div>
-                    <div class="achievement-value">{{ score }} points</div>
-                </div>
-                <div class="achievement-item">
-                    <div class="achievement-label">Final Ranking</div>
-                    <div class="achievement-value">{{ rank }}{{ get_ordinal_suffix(rank) }} place</div>
-                </div>
-                <div class="achievement-item">
-                    <div class="achievement-label">Competition Date</div>
-                    <div class="achievement-value">{{ competition_date }}</div>
-                </div>
-                <div class="achievement-item">
-                    <div class="achievement-label">Certificate Issue</div>
-                    <div class="achievement-value">{{ issue_date }}</div>
-                </div>
+
+    <div class="page">
+      <div class="certificate">
+        <div class="frame"></div>
+        <div class="gild"></div>
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+        <div class="overlay">
+          <div class="title">
+            {{ title_text or 'CERTIFICATE OF EXCELLENCE' }}
+          </div>
+
+          <div class="recipient">
+            <div class="label">awarded to members of team</div>
+            <div class="name">{{ team_name or user_name }}</div>
+          </div>
+
+          <div class="details">
+            <div class="kv">
+              <div class="k">CTF</div>
+              <div class="v">{{ ctf_title }}</div>
             </div>
+            <div class="kv">
+              <div class="k">Rank</div>
+              <div class="v">{{ rank }}{{ get_ordinal_suffix(rank) }}</div>
+            </div>
+            <div class="kv">
+              <div class="k">Score</div>
+              <div class="v">{{ score }}</div>
+            </div>
+            <div class="kv">
+              <div class="k">Issued</div>
+              <div class="v">{{ issue_date }}</div>
+            </div>
+          </div>
+
+          <div class="summary">
+            for placing {{ rank }}{{ get_ordinal_suffix(rank) }} out of {{
+            total_teams or 'many' }} teams in {{ ctf_title }}, an {{
+            competition_phrase or 'international cybersecurity competition' }}
+            from {{ competition_date }}.
+          </div>
+
+          <div class="footer">
+            {{ footer_text or 'Congratulations on your outstanding performance.'
+            }}
+          </div>
         </div>
-        
-        <!-- 認証文 -->
-        <p class="achievement-text">
-            This certificate validates the recipient's cybersecurity expertise
-        </p>
+      </div>
     </div>
-    
-    <script>
-        function goBackToTeam() {
-            // チームページに戻る
-            window.location.href = '/team';
-        }
-    </script>
-</body>
+  </body>
 </html>
