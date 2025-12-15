@@ -18,6 +18,7 @@ class CertificateSettings(db.Model):
     competition_phrase = Column(
         String(255), default="international cybersecurity competition", nullable=False
     )
+    event_id = Column(String(255), default="", nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

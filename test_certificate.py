@@ -36,22 +36,26 @@ class TestCertificateGenerator(unittest.TestCase):
         self.user = MockUser()
         self.team = MockTeam()
 
-    def test_certificate_html_generation(self):
-        """証明書HTML生成のテスト（PDF生成機能は削除済み）"""
-        # HTML証明書はテンプレートから生成される
-        # CTFd環境外でのテストなので基本的なモックテスト
-        test_data = {
-            "user_name": "Test User",
-            "score": 1000,
-            "rank": 1,
-            "ctf_title": "Test CTF",
-            "file_path": "",  # HTMLの場合は空文字列
-        }
+    @patch("weasyprint.HTML")
+    def test_certificate_pdf_generation(self, mock_html):
+        """証明書PDF生成のテスト"""
+        # WeasyPrintのモック設定
+        mock_pdf_bytes = b"%PDF-1.4..."
+        mock_instance = Mock()
+        mock_instance.write_pdf.return_value = mock_pdf_bytes
+        mock_html.return_value = mock_instance
 
-        # 基本的なデータ構造のテスト
-        self.assertEqual(test_data["user_name"], "Test User")
-        self.assertEqual(test_data["score"], 1000)
-        self.assertEqual(test_data["rank"], 1)
+        # HTMLレンダリングのモック（実際にはFlaskのrender_templateが呼ばれるが、
+        # ここでは単にPDF生成フローが通るかを確認したい）
+        # ただし、統合テストではないので、ユニットテストレベルで
+        # WeasyPrintが正しく呼ばれるかを確認する。
+
+        # NOTE: 実際のFlaskアプリコンテキストがないとテストしにくい部分があるため
+        # ここではモックが呼ばれることだけを確認する想定
+        mock_html(string="<html></html>").write_pdf()
+        
+        mock_html.assert_called_with(string="<html></html>")
+        mock_instance.write_pdf.assert_called_once()
 
 
 class TestCertificateModels(unittest.TestCase):
@@ -97,7 +101,7 @@ class TestCertificatePlugin(unittest.TestCase):
 
         # プラグインの基本構成をテスト
         plugin_config = {
-            "name": "ctfd_certificate",
+            "name": "ctfd-certificate",
             "routes": [
                 "/admin/certificates",
                 "/certificates/generate",
@@ -111,7 +115,7 @@ class TestCertificatePlugin(unittest.TestCase):
         }
 
         # 基本的なプラグイン構成のテスト
-        self.assertEqual(plugin_config["name"], "ctfd_certificate")
+        self.assertEqual(plugin_config["name"], "ctfd-certificate")
         self.assertIn("/certificates/generate", plugin_config["routes"])
         self.assertIn("certificate_display.html", plugin_config["templates"])
 

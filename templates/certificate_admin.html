@@ -96,6 +96,21 @@
                   >
                 </div>
               </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="event_id">Event ID (CTFtime)</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="event_id"
+                    name="event_id"
+                    value="{{ settings.event_id or '' }}"
+                  />
+                  <small class="form-text text-muted"
+                    >e.g. 2986 (Used for verification URL)</small
+                  >
+                </div>
+              </div>
             </div>
 
             <input type="hidden" name="nonce" value="{{ nonce }}" />
@@ -166,7 +181,7 @@
 {% endblock %} {% block scripts %}
 <script>
   $(document).ready(function () {
-    $("#ctf_title, #title_text, #footer_text, #competition_phrase").on(
+    $("#ctf_title, #title_text, #footer_text, #competition_phrase, #event_id").on(
       "change input",
       function () {
         clearTimeout(window.previewUpdateTimeout);
@@ -183,6 +198,7 @@
       title_text: "CERTIFICATE OF EXCELLENCE",
       footer_text: "Congratulations on your outstanding performance.",
       competition_phrase: "international cybersecurity competition",
+      event_id: "",
     };
     for (const [id, val] of Object.entries(defaults)) {
       const el = document.getElementById(id);

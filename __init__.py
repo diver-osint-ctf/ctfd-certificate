@@ -9,14 +9,16 @@ from flask import (
     flash,
     jsonify,
     session,
+    make_response,
 )
 from CTFd.utils.decorators import admins_only, authed_only
 from CTFd.models import db, Users, Teams, Solves
 from CTFd.utils import get_config
 from CTFd.utils.user import get_current_user
-from CTFd.plugins import register_plugin_assets_directory
+from CTFd.plugins import register_plugin_assets_directory, register_plugin_script, register_plugin_stylesheet
 from .models import CertificateSettings, TeamCertificateToken, generate_certificate_token
 import os
+import re
 from datetime import datetime
 
 
@@ -111,7 +113,20 @@ def load(app):
                                 f"ALTER TABLE certificate_settings ADD COLUMN {column_name} {col_type} DEFAULT '{default_value}'"
                             )
                         )
+                        conn.execute(
+                            text(
+                                f"ALTER TABLE certificate_settings ADD COLUMN {column_name} {col_type} DEFAULT '{default_value}'"
+                            )
+                        )
                         print(f"{column_name} added")
+
+                # specific migration for event_id
+                if "event_id" not in columns:
+                    print("Adding event_id column to certificate_settings")
+                    conn.execute(
+                        text("ALTER TABLE certificate_settings ADD COLUMN event_id VARCHAR(255) DEFAULT ''")
+                    )
+                    print("event_id column added")
 
         except Exception as e:
             print(f"Certificate settings migration error: {e}")
@@ -124,11 +139,27 @@ def load(app):
     # アセットディレクトリを登録
     try:
         register_plugin_assets_directory(
-            app, base_path="/plugins/ctfd_certificate/assets/"
+            app, base_path="/plugins/ctfd-certificate/assets/"
         )
         print("Asset directory registered successfully")
     except Exception as e:
         print(f"Error registering asset directory: {e}")
+
+    # スクリプトを登録
+    try:
+        register_plugin_script("/plugins/ctfd-certificate/assets/certificate.js")
+        print("Certificate script registered successfully")
+    except Exception as e:
+        print(f"Error registering certificate script: {e}")
+
+    # スタイルシートを登録
+    try:
+        register_plugin_stylesheet("/plugins/ctfd-certificate/assets/certificate-tooltip.css")
+        print("Certificate stylesheet registered successfully")
+    except Exception as e:
+        print(f"Error registering certificate stylesheet: {e}")
+
+    # Blueprintを作成
 
     # Blueprintを作成
     certificate_blueprint = Blueprint(
@@ -180,6 +211,7 @@ def load(app):
                     settings.competition_phrase
                     or "international cybersecurity competition",
                 )
+                settings.event_id = request.form.get("event_id", "")
                 settings.updated_at = datetime.utcnow()
 
                 db.session.commit()
@@ -300,7 +332,8 @@ def load(app):
             print(f"Settings query error in view_certificate: {e}")
             settings = None
 
-        return render_template(
+        # HTMLをレンダリング
+        rendered_html = render_template(
             "certificate_display.html",
             user_name=None,
             team_name=team_name,
@@ -312,12 +345,30 @@ def load(app):
             title_text=(getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE") if settings else "CERTIFICATE OF EXCELLENCE"),
             footer_text=(getattr(settings, "footer_text", "Congratulations on your outstanding performance.") if settings else "Congratulations on your outstanding performance."),
             competition_phrase=(getattr(settings, "competition_phrase", "international cybersecurity competition") if settings else "international cybersecurity competition"),
+            event_id=(getattr(settings, "event_id", "") if settings else ""),
             competition_date=datetime.now().strftime("%B %Y"),
             issue_date=datetime.now().strftime("%B %d, %Y"),
             get_ordinal_suffix=get_ordinal_suffix,
             is_preview=False,
             total_teams=total_teams,
         )
+
+        # PDFを生成
+        from weasyprint import HTML, CSS
+        pdf = HTML(string=rendered_html, base_url=request.base_url).write_pdf()
+
+        # ファイル名を生成
+        ctf_title_val = settings.ctf_title if settings else get_config("ctf_name", "CTF")
+        safe_ctf_title = re.sub(r'[^\w\-_]', '_', ctf_title_val)
+        safe_team_name = re.sub(r'[^\w\-_]', '_', team_name or "unknown_team")
+        
+        filename = f"{safe_ctf_title}_{safe_team_name}_certificate.pdf"
+
+        # レスポンスを作成
+        response = make_response(pdf)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+        return response
 
     # Token generator: returns URL with token
     @certificate_blueprint.route("/certificates/generate", methods=["POST"])
@@ -412,6 +463,7 @@ def load(app):
                     )
                     or "international cybersecurity competition"
                 )
+                sample_data["event_id"] = getattr(settings, "event_id", "")
                 sample_data["total_teams"] = total_teams
             else:
                 sample_data["text_color"] = "#111111"
@@ -422,6 +474,7 @@ def load(app):
                 sample_data["competition_phrase"] = (
                     "international cybersecurity competition"
                 )
+                sample_data["event_id"] = "2986" # Sample ID for default preview if no settings
                 sample_data["total_teams"] = total_teams
         except Exception as e:
             print(f"Settings query error in preview: {e}")
@@ -433,6 +486,7 @@ def load(app):
             sample_data["competition_phrase"] = (
                 "international cybersecurity competition"
             )
+            sample_data["event_id"] = ""
             # even on error, try a safe fallback (None -> 'many')
             sample_data["total_teams"] = None
 

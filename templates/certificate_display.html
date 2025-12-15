@@ -24,6 +24,7 @@
         justify-content: center;
       }
 
+      /* Screen styles (Modern CSS) */
       .certificate {
         position: relative;
         width: min(100vw, 100vh * 1.294);
@@ -39,7 +40,7 @@
         box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18),
           0 2px 6px rgba(0, 0, 0, 0.08);
         border-radius: 10px;
-        color: #111111; /* unify text color */
+        color: #111111;
       }
 
       .frame {
@@ -54,7 +55,6 @@
         inset: 0;
         border-radius: 8px;
       }
-      /* glossy gold frame */
       .frame::before {
         border: 6px double #c8a64b;
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
@@ -70,6 +70,7 @@
         inset: 0;
         pointer-events: none;
       }
+      /* Simplify gild for print/compatibility if needed, but keeping for screen */
       .gild::before,
       .gild::after {
         content: "";
@@ -172,7 +173,9 @@
         font-weight: 700;
         font-size: clamp(22px, 4.2vw, 54px);
         letter-spacing: 0.12em;
-        color: #111111; /* unify title color */
+        color: #111111;
+        text-align: center; /* Added centering */
+        width: 100%;
       }
 
       .recipient {
@@ -198,11 +201,21 @@
       .details {
         align-self: center;
         justify-self: center;
-        display: grid;
-        grid-auto-flow: column;
-        gap: clamp(12px, 3vw, 40px);
+        /* Changed to flex column for separate rows */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        gap: 15px; /* Spacing between CTF row and others */
         text-align: center;
-        transform: translateY(1.2cm);
+        /* Reduced transform to handle taller content */
+        transform: translateY(0.5cm);
+      }
+      .details-row {
+         display: flex;
+         gap: clamp(12px, 3vw, 40px);
+         justify-content: center;
       }
       .kv {
         min-width: 120px;
@@ -228,9 +241,11 @@
         font-family: "Noto Sans JP", sans-serif;
         color: #333;
         font-size: clamp(12px, 1.8vw, 18px);
-        margin-top: 0.2cm;
+        margin-top: 0cm; /* Adjusted to let grid handle it */
         max-width: 80%;
-        transform: translateY(1.4cm);
+        /* Reduced transform to prevent overlap with footer */
+        transform: translateY(0.5cm);
+        line-height: 1.6;
       }
 
       .footer {
@@ -240,40 +255,270 @@
         font-family: "Noto Sans JP", sans-serif;
         color: #333;
         font-size: clamp(12px, 1.8vw, 18px);
+        /* Removed large margin to prevent pushout, grid handles positioning */
+        margin-top: 0;
       }
 
+      .verification {
+        position: absolute;
+        bottom: 2%;
+        right: 3.5%;
+        font-family: "Noto Sans JP", sans-serif;
+        font-size: 10pt;
+      }
       .actions {
         position: fixed;
         top: 12px;
         right: 12px;
         display: flex;
         gap: 8px;
+        z-index: 2147483647; /* Max Z-index */
       }
-      .btn {
+      .actions .btn {
         appearance: none;
         border: none;
-        border-radius: 8px;
-        padding: 10px 14px;
-        background: #222;
+        border-radius: 4px; /* Bootstrap-ish */
+        padding: 6px 12px;
+        background: #343a40; /* Bootstrap dark */
         color: #fff;
         cursor: pointer;
-        font-family: "Noto Sans JP", sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        transition: background-color 0.15s ease-in-out;
       }
-      .btn.secondary {
-        background: #6c757d;
+      .actions .btn:hover {
+        background-color: #23272b;
+      }
+      .actions .btn.secondary {
+        background: #6c757d; /* Bootstrap secondary */
+      }
+      .actions .btn.secondary:hover {
+        background-color: #5a6268;
       }
 
+      /* Tooltip Styles (Mimicking Bootstrap 5) */
+      [data-tooltip] {
+        position: relative;
+      }
+      [data-tooltip]::before {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: calc(100% + 5px); /* Just below button */
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #000;
+        color: #fff;
+        padding: 4px 8px;
+        border-radius: 4px; /* Bootstrap .tooltip-inner radius */
+        font-size: 0.875rem;
+        line-height: 1.5;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.15s linear;
+        z-index: 2147483647;
+        pointer-events: none;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        text-align: center;
+      }
+      [data-tooltip]::after {
+        content: "";
+        position: absolute;
+        top: 100%; /* At bottom edge of button */
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent transparent #000 transparent; /* Arrow pointing up */
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.15s linear;
+        z-index: 2147483647;
+      }
+      [data-tooltip]:hover::before,
+      [data-tooltip]:hover::after {
+        opacity: 0.9; /* Bootstrap default opacity */
+        visibility: visible;
+      }
+
+
+
+      /* PDF Generation / Print Styles */
       @media print {
-        body {
+        @page {
+          size: A4 landscape;
+          margin: 0;
+        }
+
+        html, body {
+          width: 297mm;
+          height: 210mm;
+          margin: 0;
+          padding: 0;
           background: #fff;
+          /* Reset overflow for print */
+          overflow: hidden;
         }
+
         .actions {
-          display: none;
+          display: none !important;
         }
+
+
+        .page {
+          width: 297mm;
+          height: 210mm;
+          display: block;
+        }
+
         .certificate {
+          /* Fixed size for A4 landscape */
+          width: 297mm;
+          height: 210mm;
+          /* Remove aspect-ratio and min(), unsupported by WeasyPrint */
+          aspect-ratio: auto;
+          min-width: unset;
+          max-width: unset;
+          /* Remove flex centering hack from screen */
+          margin: 0;
+          border-radius: 0;
           box-shadow: none;
-          width: 100vw;
-          height: 100vh;
+        }
+
+        /* Fix inset -> top/left/right/bottom for WeasyPrint */
+        /* Fix inset -> top/left/right/bottom for WeasyPrint */
+        .frame {
+            top: 15mm; left: 15mm; right: 15mm; bottom: 15mm; /* Increased margin for "outside" content */
+            inset: auto; /* reset */
+        }
+        .frame::before, .frame::after {
+            top: 0; left: 0; right: 0; bottom: 0;
+            inset: auto;
+        }
+        /* Except .frame::after had 1.2% inset relative to frame, we can keep it simple or adjust */
+        .frame::after {
+            top: 2mm; left: 2mm; right: 2mm; bottom: 2mm;
+        }
+
+        .gild {
+            top: 0; left: 0; right: 0; bottom: 0;
+            inset: auto;
+        }
+        .overlay {
+            top: 0; left: 0; right: 0; bottom: 0;
+            inset: auto;
+        }
+
+        /* Clamp replacements with fixed units (approximate for A4) */
+        /* Clear clamps and transforms for print */
+        .title {
+            font-size: 32pt; /* Slightly reduced */
+            transform: none;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 35pt; /* Increased margin */
+            align-self: auto;
+            line-height: 1.3;
+        }
+        .recipient {
+            transform: none;
+            width: 100%;
+            margin-bottom: 35pt; /* Increased margin */
+            align-self: auto;
+        }
+        .recipient .label {
+            font-size: 14pt;
+        }
+        .recipient .name {
+            font-size: 32pt;
+        }
+        
+        .details {
+            transform: none;
+            width: 100%;
+            margin-bottom: 30pt; /* Increased margin */
+            /* Removed align-self: center */
+        }
+        .details-row {
+            display: flex; /* Keep flex ONLY for the row content which is small items */
+            gap: 30pt;
+            width: 100%;
+            justify-content: center;
+        }
+        .kv .k {
+            font-size: 10pt;
+        }
+        .kv .v {
+            font-size: 18pt;
+        }
+        
+        .summary {
+            font-size: 11pt;
+            transform: none;
+            margin-top: 20pt;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 90%;
+            line-height: 1.6;
+            align-self: auto;
+        }
+        
+        .footer {
+            font-size: 11pt;
+            margin-top: 25pt;
+            align-self: auto;
+        }
+
+        /* Re-define grid for print to ensure spacing without transforms */
+        /* Re-define grid for print to ensure spacing without transforms */
+        .overlay {
+            position: relative; /* Reset position */
+            display: block; /* Switch to block layout to flow naturally */
+            padding: 20mm 15mm; /* Add padding */
+            text-align: center;
+            height: 100%;
+            box-sizing: border-box;
+            inset: auto; /* Ensure inset is cleared */
+        }
+        
+        .overlay > div {
+            /* Reset flex-shrink just in case, though block ignores it */
+            margin-left: auto;
+            margin-right: auto;
+            display: block; /* Ensure blocks */
+            position: relative; /* Ensure overlapping isn't caused by static pos */
+        }
+        
+        /* Insert spacers if using flex column, or rely on margins */
+        
+        .verification {
+            position: fixed; /* Fixed relative to page */
+            bottom: 5mm;
+            right: 5mm; /* In the 15mm margin space */
+            font-size: 8pt;
+            width: auto;
+            text-align: right;
+            z-index: 2000;
+            color: #555; /* Ensure visibility */
+        }
+
+        /* Conic-gradient fallbacks */
+        .corner {
+            /* Conic gradient not supported, use simple linear gradient approximation or solid color */
+            background: #c8a64b; 
+        }
+        .corner.tl {
+            background: linear-gradient(135deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
+        }
+        .corner.tr {
+            background: linear-gradient(-135deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
+        }
+        .corner.bl {
+            background: linear-gradient(45deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
+        }
+        .corner.br {
+            background: linear-gradient(-45deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
         }
       }
     </style>
@@ -284,7 +529,7 @@
       <button class="btn secondary" onclick="window.location.href='/team'">
         ← Back
       </button>
-      <button class="btn" onclick="window.print()">🖨️ Print / Save</button>
+      <button class="btn" onclick="window.print()" data-tooltip="Save as PDF">🖨️ Print / Save</button>
     </div>
     {% endif %}
 
@@ -308,21 +553,25 @@
           </div>
 
           <div class="details">
-            <div class="kv">
-              <div class="k">CTF</div>
-              <div class="v">{{ ctf_title }}</div>
+            <div class="details-row">
+              <div class="kv">
+                <div class="k">CTF</div>
+                <div class="v">{{ ctf_title }}</div>
+              </div>
             </div>
-            <div class="kv">
-              <div class="k">Rank</div>
-              <div class="v">{{ rank }}{{ get_ordinal_suffix(rank) }}</div>
-            </div>
-            <div class="kv">
-              <div class="k">Score</div>
-              <div class="v">{{ score }}</div>
-            </div>
-            <div class="kv">
-              <div class="k">Issued</div>
-              <div class="v">{{ issue_date }}</div>
+            <div class="details-row">
+              <div class="kv">
+                <div class="k">Rank</div>
+                <div class="v">{{ rank }}{{ get_ordinal_suffix(rank) }}</div>
+              </div>
+              <div class="kv">
+                <div class="k">Score</div>
+                <div class="v">{{ score }}</div>
+              </div>
+              <div class="kv">
+                <div class="k">Issued</div>
+                <div class="v">{{ issue_date }}</div>
+              </div>
             </div>
           </div>
 
@@ -340,5 +589,10 @@
         </div>
       </div>
     </div>
+    {% if event_id %}
+    <div class="verification">
+      verification: https://ctftime.org/event/{{ event_id }}/
+    </div>
+    {% endif %}
   </body>
 </html>
