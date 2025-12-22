@@ -207,7 +207,7 @@
         justify-content: center;
         align-items: center;
         width: 100%;
-        gap: 15px; /* Spacing between CTF row and others */
+        gap: 25px; /* Spacing between CTF row and others */
         text-align: center;
         /* Reduced transform to handle taller content */
         transform: translateY(0.5cm);
@@ -265,6 +265,19 @@
         right: 3.5%;
         font-family: "Noto Sans JP", sans-serif;
         font-size: 10pt;
+      }
+      .certificate-logo {
+        position: absolute;
+        bottom: 4%;
+        left: 4%;
+        max-width: 120px;
+        max-height: 80px;
+        opacity: 0.85;
+      }
+      .certificate-logo img {
+        width: 100%;
+        height: auto;
+        display: block;
       }
       .actions {
         position: fixed;
@@ -438,6 +451,7 @@
             transform: none;
             width: 100%;
             margin-bottom: 30pt; /* Increased margin */
+            gap: 25pt; /* Spacing between CTF row and others */
             /* Removed align-self: center */
         }
         .details-row {
@@ -493,7 +507,7 @@
         /* Insert spacers if using flex column, or rely on margins */
         
         .verification {
-            position: fixed; /* Fixed relative to page */
+            position: absolute; /* Absolute relative to .page */
             bottom: 5mm;
             right: 5mm; /* In the 15mm margin space */
             font-size: 8pt;
@@ -501,6 +515,20 @@
             text-align: right;
             z-index: 2000;
             color: #555; /* Ensure visibility */
+        }
+
+        .certificate-logo {
+            position: absolute;
+            bottom: calc(10mm + {{ logo_offset_y if logo_offset_y is defined else 0 }}px);
+            left: calc(10mm + {{ logo_offset_x if logo_offset_x is defined else 0 }}px);
+            width: {{ logo_width if logo_width is defined else 200 }}px;
+            height: auto;
+            opacity: 0.85;
+        }
+        .certificate-logo img {
+            width: {{ logo_width if logo_width is defined else 200 }}px;
+            height: auto;
+            display: block;
         }
 
         /* Conic-gradient fallbacks */
@@ -587,12 +615,19 @@
             }}
           </div>
         </div>
+
+        {% if certificate_logo_path %}
+        <div class="certificate-logo">
+          <img src="{{ certificate_logo_path }}" alt="Logo">
+        </div>
+        {% endif %}
       </div>
+
+      {% if event_id %}
+      <div class="verification">
+        verification: https://ctftime.org/event/{{ event_id }}/
+      </div>
+      {% endif %}
     </div>
-    {% if event_id %}
-    <div class="verification">
-      verification: https://ctftime.org/event/{{ event_id }}/
-    </div>
-    {% endif %}
   </body>
 </html>

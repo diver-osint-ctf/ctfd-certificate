@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Development and debugging
+verify_*.py
+test_output/
+*.pdf
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+
+# Documentation (if not part of plugin)
+docs/
+
+# Build outputs
+out/
+dist/
+build/

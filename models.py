@@ -19,6 +19,10 @@ class CertificateSettings(db.Model):
         String(255), default="international cybersecurity competition", nullable=False
     )
     event_id = Column(String(255), default="", nullable=True)
+    logo_data = Column(db.LargeBinary, nullable=True)  # ロゴ画像データ（BLOB）
+    logo_scale = Column(Integer, default=100, nullable=True)  # ロゴ拡大率（%、基準200px）
+    logo_offset_x = Column(Integer, default=0, nullable=True)  # X軸オフセット（px）
+    logo_offset_y = Column(Integer, default=0, nullable=True)  # Y軸オフセット（px）
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

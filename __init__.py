@@ -1,5 +1,3 @@
-print("=== CTFd Certificate Plugin: Module is being imported! ===")
-
 from flask import (
     Blueprint,
     render_template,
@@ -19,15 +17,44 @@ from CTFd.plugins import register_plugin_assets_directory, register_plugin_scrip
 from .models import CertificateSettings, TeamCertificateToken, generate_certificate_token
 import os
 import re
+import base64
 from datetime import datetime
 
 
-print("=== CTFd Certificate Plugin: All imports completed! ===")
+def get_certificate_logo_base64(settings=None):
+    """
+    証明書のロゴをbase64エンコードして取得
+
+    将来的な拡張:
+    - settingsオブジェクトに logo_data フィールドがあればそれを使用
+    - なければデフォルトのロゴファイルを使用
+
+    Args:
+        settings: CertificateSettings オブジェクト (オプション)
+
+    Returns:
+        str: base64エンコードされたロゴ文字列、またはNone
+    """
+    try:
+        # 将来的な拡張: データベースからロゴを取得
+        # if settings and hasattr(settings, 'logo_data') and settings.logo_data:
+        #     return base64.b64encode(settings.logo_data).decode('utf-8')
+
+        # 現在: デフォルトのロゴファイルを使用
+        logo_path = os.path.join(os.path.dirname(__file__), "assets", "default-logo.png")
+
+        if os.path.exists(logo_path):
+            with open(logo_path, "rb") as logo_file:
+                logo_data = logo_file.read()
+                encoded = base64.b64encode(logo_data).decode('utf-8')
+                return encoded
+        else:
+            return None
+    except Exception as e:
+        return None
 
 
 def load(app):
-    print("=== CTFd Certificate Plugin: Load function called! ===")
-
     # データベーステーブルを作成・マイグレーション
     try:
         # 手動でテーブル作成とカラム追加を実行
@@ -46,7 +73,6 @@ def load(app):
                 # certificate_settingsテーブルの構造を確認
                 result = conn.execute(text("DESCRIBE certificate_settings"))
                 columns = [row[0] for row in result]
-                print(f"Current certificate_settings columns: {columns}")
 
                 # 新しい色カラムを追加
                 color_columns = {
@@ -58,18 +84,14 @@ def load(app):
 
                 for column_name, default_value in color_columns.items():
                     if column_name not in columns:
-                        print(
-                            f"Adding {column_name} column to certificate_settings table"
-                        )
                         conn.execute(
                             text(
                                 f"""
-                            ALTER TABLE certificate_settings 
+                            ALTER TABLE certificate_settings
                             ADD COLUMN {column_name} VARCHAR(7) DEFAULT '{default_value}'
                         """
                             )
                         )
-                        print(f"{column_name} column added successfully")
 
                 # 古いカラムを削除
                 old_columns = [
@@ -79,18 +101,15 @@ def load(app):
                 ]
                 for column_name in old_columns:
                     if column_name in columns:
-                        print(f"Removing deprecated {column_name} column")
                         conn.execute(
                             text(
                                 f"ALTER TABLE certificate_settings DROP COLUMN {column_name}"
                             )
                         )
-                        print(f"{column_name} column removed successfully")
 
                 # Refresh columns list after any drops
                 result = conn.execute(text("DESCRIBE certificate_settings"))
                 columns = [row[0] for row in result]
-                print(f"certificate_settings columns after cleanup: {columns}")
 
                 new_columns = {
                     "text_color": "#2A2A2A",
@@ -100,9 +119,6 @@ def load(app):
                 }
                 for column_name, default_value in new_columns.items():
                     if column_name not in columns:
-                        print(
-                            f"Adding new column {column_name} to certificate_settings"
-                        )
                         col_type = (
                             "VARCHAR(255)"
                             if column_name != "text_color"
@@ -118,46 +134,38 @@ def load(app):
                                 f"ALTER TABLE certificate_settings ADD COLUMN {column_name} {col_type} DEFAULT '{default_value}'"
                             )
                         )
-                        print(f"{column_name} added")
 
                 # specific migration for event_id
                 if "event_id" not in columns:
-                    print("Adding event_id column to certificate_settings")
                     conn.execute(
                         text("ALTER TABLE certificate_settings ADD COLUMN event_id VARCHAR(255) DEFAULT ''")
                     )
-                    print("event_id column added")
 
         except Exception as e:
-            print(f"Certificate settings migration error: {e}")
+            pass
 
-
-        print("Database tables created successfully")
     except Exception as e:
-        print(f"Error creating database tables: {e}")
+        pass
 
     # アセットディレクトリを登録
     try:
         register_plugin_assets_directory(
             app, base_path="/plugins/ctfd-certificate/assets/"
         )
-        print("Asset directory registered successfully")
     except Exception as e:
-        print(f"Error registering asset directory: {e}")
+        pass
 
     # スクリプトを登録
     try:
         register_plugin_script("/plugins/ctfd-certificate/assets/certificate.js")
-        print("Certificate script registered successfully")
     except Exception as e:
-        print(f"Error registering certificate script: {e}")
+        pass
 
     # スタイルシートを登録
     try:
         register_plugin_stylesheet("/plugins/ctfd-certificate/assets/certificate-tooltip.css")
-        print("Certificate stylesheet registered successfully")
     except Exception as e:
-        print(f"Error registering certificate stylesheet: {e}")
+        pass
 
     # Blueprintを作成
 
@@ -171,12 +179,7 @@ def load(app):
     @admins_only
     def admin_certificates():
         """管理者用証明書設定画面"""
-        print(f"=== Admin certificates accessed: method={request.method} ===")
-        print(f"Request form data: {dict(request.form)}")
-        print(f"Request headers: {dict(request.headers)}")
-
         if request.method == "POST":
-            print("=== POST request processing ===")
 
             # CSRF nonce検証
             submitted_nonce = request.form.get("nonce")
@@ -184,9 +187,6 @@ def load(app):
 
             if not submitted_nonce or submitted_nonce != session_nonce:
                 flash("CSRF token validation failed. Please try again.", "error")
-                print(
-                    f"CSRF validation failed: submitted={submitted_nonce}, session={session_nonce}"
-                )
                 return redirect(url_for("certificate.admin_certificates"))
 
             # 設定を保存（エラーハンドリング付き）
@@ -212,12 +212,62 @@ def load(app):
                     or "international cybersecurity competition",
                 )
                 settings.event_id = request.form.get("event_id", "")
+
+                # ロゴサイズ・位置の設定
+                logo_scale = request.form.get("logo_scale", "100")
+                logo_offset_x = request.form.get("logo_offset_x", "0")
+                logo_offset_y = request.form.get("logo_offset_y", "0")
+
+                # 数値に変換（空文字列の場合はデフォルト値）
+                try:
+                    settings.logo_scale = int(logo_scale) if logo_scale else 100
+                except ValueError:
+                    settings.logo_scale = 100
+
+                try:
+                    settings.logo_offset_x = int(logo_offset_x) if logo_offset_x else 0
+                except ValueError:
+                    settings.logo_offset_x = 0
+
+                try:
+                    settings.logo_offset_y = int(logo_offset_y) if logo_offset_y else 0
+                except ValueError:
+                    settings.logo_offset_y = 0
+
+                # ロゴファイルの処理
+                reset_logo = request.form.get("reset_logo")
+                if reset_logo == "1":
+                    # デフォルトロゴにリセット
+                    settings.logo_data = None
+                    flash("Logo reset to default successfully", "success")
+                elif "logo_file" in request.files:
+                    logo_file = request.files["logo_file"]
+                    if logo_file and logo_file.filename:
+                        # ファイル形式チェック
+                        allowed_extensions = {"png", "jpg", "jpeg"}
+                        file_ext = logo_file.filename.rsplit(".", 1)[-1].lower()
+                        if file_ext not in allowed_extensions:
+                            flash("Invalid file format. Please upload PNG or JPG", "error")
+                        else:
+                            # ファイルサイズチェック（5MB）
+                            logo_file.seek(0, 2)  # ファイルの最後に移動
+                            file_size = logo_file.tell()
+                            logo_file.seek(0)  # ファイルの先頭に戻る
+
+                            if file_size > 5 * 1024 * 1024:
+                                flash("File size must be less than 5MB", "error")
+                            else:
+                                # ファイルを読み込んでBLOBとして保存
+                                logo_data = logo_file.read()
+                                settings.logo_data = logo_data
+                                flash(f"Logo uploaded successfully ({file_ext.upper()}, {file_size // 1024}KB)", "success")
+
                 settings.updated_at = datetime.utcnow()
 
                 db.session.commit()
-                flash("Certificate settings saved successfully", "success")
+                if not reset_logo and "logo_file" not in request.files:
+                    flash("Certificate settings saved successfully", "success")
             except Exception as e:
-                print(f"Settings save error: {e}")
                 flash(
                     "Failed to save settings. Database migration may be required.",
                     "error",
@@ -233,7 +283,6 @@ def load(app):
                 # CTFdの設定からタイトルを取得してデフォルト値に設定
                 settings.ctf_title = get_config("ctf_name", "CTF Certificate")
         except Exception as e:
-            print(f"Settings query error: {e}")
             # デフォルト設定でフォールバック
             ctf_name = get_config("ctf_name", "CTF Certificate")
             settings = type(
@@ -251,10 +300,17 @@ def load(app):
         # CTFdの設定からタイトルを取得
         ctf_name_from_config = get_config("ctf_name", "CTF Certificate")
 
+        # ロゴデータをbase64エンコード（テンプレートで使用）
+        logo_data_base64 = None
+        if settings and hasattr(settings, 'logo_data') and settings.logo_data:
+            import base64
+            logo_data_base64 = base64.b64encode(settings.logo_data).decode('utf-8')
+
         context = {
             "settings": settings,
             "nonce": session["nonce"],
             "ctf_name_from_config": ctf_name_from_config,
+            "logo_data_base64": logo_data_base64,
         }
         return render_template("certificate_admin.html", **context)
 
@@ -265,6 +321,79 @@ def load(app):
         else:
             suffix = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
         return suffix
+
+    def _generate_certificate_pdf(certificate_data, logo_data_from_db, filename):
+        """共通のPDF生成関数
+
+        Args:
+            certificate_data: テンプレートに渡すデータの辞書
+            logo_data_from_db: データベースからのロゴデータ（バイナリ）、なければNone
+            filename: 生成するPDFのファイル名
+
+        Returns:
+            PDFのFlask Response
+        """
+        # HTMLをレンダリング
+        rendered_html = render_template("certificate_display.html", **certificate_data)
+
+        # PDFを生成
+        from weasyprint import HTML, CSS
+        import urllib.parse
+
+        # カスタムurl_fetcherを定義（ローカルファイルを読み込むため）
+        plugin_dir = os.path.dirname(__file__)
+
+        def custom_url_fetcher(url):
+            """カスタムURL取得関数：ローカルファイルまたはデータベースから読み込む"""
+            # データベースロゴの特別な処理
+            if url.endswith('db-logo.png') or 'db-logo.png' in url:
+                if logo_data_from_db:
+                    return {
+                        'string': logo_data_from_db,
+                        'mime_type': 'image/png',
+                        'redirected_url': url,
+                        'filename': 'db-logo.png'
+                    }
+                else:
+                    return None
+
+            # 相対パスの場合、プラグインディレクトリからの相対パスとして解釈
+            if not url.startswith(('http://', 'https://', 'file://', 'data:')):
+                file_path = os.path.join(plugin_dir, url)
+            elif url.startswith('file://'):
+                # file:// URLの場合、パスを抽出
+                file_path = urllib.parse.urlparse(url).path
+            else:
+                # HTTPやHTTPSの場合、デフォルトの挙動に委譲
+                return weasyprint.default_url_fetcher(url)
+
+            # ファイルを読み込む
+            if os.path.exists(file_path):
+                import mimetypes
+                with open(file_path, 'rb') as f:
+                    content = f.read()
+                    # MIMEタイプを推測
+                    mime_type, _ = mimetypes.guess_type(file_path)
+                    if not mime_type:
+                        mime_type = 'application/octet-stream'
+                    return {
+                        'string': content,
+                        'mime_type': mime_type,
+                        'redirected_url': url,
+                        'filename': os.path.basename(file_path)
+                    }
+            else:
+                return None
+
+        import weasyprint
+        base_url = f"file://{plugin_dir}/"
+        pdf = HTML(string=rendered_html, base_url=base_url, url_fetcher=custom_url_fetcher).write_pdf()
+
+        # レスポンスを作成
+        response = make_response(pdf)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+        return response
 
     @certificate_blueprint.route("/certificates/<token>")
     def view_certificate(token):
@@ -302,7 +431,7 @@ def load(app):
             if logo_path:
                 logo_url = url_for("views.files", path=logo_path)
         except Exception as e:
-            print(f"Failed to get logo URL: {e}")
+            pass
 
         # 参加チーム総数
         try:
@@ -322,53 +451,63 @@ def load(app):
             if not total_teams:
                 total_teams = Teams.query.count() or Users.query.count()
         except Exception as e:
-            print(f"Failed to compute total_teams: {e}")
             total_teams = None
 
         # 設定
         try:
             settings = CertificateSettings.query.first()
         except Exception as e:
-            print(f"Settings query error in view_certificate: {e}")
             settings = None
 
-        # HTMLをレンダリング
-        rendered_html = render_template(
-            "certificate_display.html",
-            user_name=None,
-            team_name=team_name,
-            score=team_score,
-            rank=team_rank,
-            ctf_title=(settings.ctf_title if settings else get_config("ctf_name", "CTF")),
-            logo_url=logo_url,
-            text_color="#111111",
-            title_text=(getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE") if settings else "CERTIFICATE OF EXCELLENCE"),
-            footer_text=(getattr(settings, "footer_text", "Congratulations on your outstanding performance.") if settings else "Congratulations on your outstanding performance."),
-            competition_phrase=(getattr(settings, "competition_phrase", "international cybersecurity competition") if settings else "international cybersecurity competition"),
-            event_id=(getattr(settings, "event_id", "") if settings else ""),
-            competition_date=datetime.now().strftime("%B %Y"),
-            issue_date=datetime.now().strftime("%B %d, %Y"),
-            get_ordinal_suffix=get_ordinal_suffix,
-            is_preview=False,
-            total_teams=total_teams,
-        )
+        # 証明書ロゴを取得（データベース優先、なければデフォルトファイル）
+        logo_data_from_db = None
+        if settings and hasattr(settings, 'logo_data') and settings.logo_data:
+            logo_data_from_db = settings.logo_data
 
-        # PDFを生成
-        from weasyprint import HTML, CSS
-        pdf = HTML(string=rendered_html, base_url=request.base_url).write_pdf()
+        # ロゴのパスまたはデータURIを設定
+        if logo_data_from_db:
+            # データベースにロゴがある場合
+            certificate_logo_path = "db-logo.png"  # カスタムurl_fetcherで処理される特別なパス
+        else:
+            # デフォルトのロゴファイルを使用
+            certificate_logo_path = "assets/default-logo.png"
+
+        # 証明書データを準備
+        certificate_data = {
+            "user_name": None,
+            "team_name": team_name,
+            "score": team_score,
+            "rank": team_rank,
+            "ctf_title": (settings.ctf_title if settings else get_config("ctf_name", "CTF")),
+            "logo_url": logo_url,
+            "certificate_logo_path": certificate_logo_path,
+            "text_color": "#111111",
+            "title_text": (getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE") if settings else "CERTIFICATE OF EXCELLENCE"),
+            "footer_text": (getattr(settings, "footer_text", "Congratulations on your outstanding performance.") if settings else "Congratulations on your outstanding performance."),
+            "competition_phrase": (getattr(settings, "competition_phrase", "international cybersecurity competition") if settings else "international cybersecurity competition"),
+            "event_id": (getattr(settings, "event_id", "") if settings else ""),
+            "competition_date": datetime.now().strftime("%B %Y"),
+            "issue_date": datetime.now().strftime("%B %d, %Y"),
+            "get_ordinal_suffix": get_ordinal_suffix,
+            "is_preview": False,
+            "total_teams": total_teams,
+            "border_color": (getattr(settings, "border_color", "#d4af37") if settings else "#d4af37"),
+            "title_color": (getattr(settings, "title_color", "#d4af37") if settings else "#d4af37"),
+            "ctf_title_color": (getattr(settings, "ctf_title_color", "#c8a64b") if settings else "#c8a64b"),
+            "accent_color": (getattr(settings, "accent_color", "#c8a64b") if settings else "#c8a64b"),
+            "logo_width": (200 * (getattr(settings, "logo_scale", 100) if settings else 100) // 100),
+            "logo_offset_x": (getattr(settings, "logo_offset_x", 0) if settings else 0),
+            "logo_offset_y": (getattr(settings, "logo_offset_y", 0) if settings else 0),
+        }
 
         # ファイル名を生成
         ctf_title_val = settings.ctf_title if settings else get_config("ctf_name", "CTF")
         safe_ctf_title = re.sub(r'[^\w\-_]', '_', ctf_title_val)
         safe_team_name = re.sub(r'[^\w\-_]', '_', team_name or "unknown_team")
-        
         filename = f"{safe_ctf_title}_{safe_team_name}_certificate.pdf"
 
-        # レスポンスを作成
-        response = make_response(pdf)
-        response.headers["Content-Type"] = "application/pdf"
-        response.headers["Content-Disposition"] = f"attachment; filename={filename}"
-        return response
+        # 共通のPDF生成関数を使用
+        return _generate_certificate_pdf(certificate_data, logo_data_from_db, filename)
 
     # Token generator: returns URL with token
     @certificate_blueprint.route("/certificates/generate", methods=["POST"])
@@ -393,104 +532,106 @@ def load(app):
             "view_url": url_for("certificate.view_certificate", token=token_row.token),
         })
 
-    @certificate_blueprint.route("/admin/certificates/preview")
+    @certificate_blueprint.route("/admin/certificates/logo")
     @admins_only
-    def preview_certificate():
-        """管理者用証明書プレビュー"""
-        # プレビュー用のサンプルデータ
-        sample_data = {
-            "user_name": "Sample User",
-            "team_name": "Sample Team",
-            "score": 1337,
-            "rank": 1,
-            "ctf_title": "Sample CTF 2024",
-            "logo_url": None,
-            "footer_text": "Congratulations on your outstanding performance.",
-            "competition_date": datetime.now().strftime("%B %Y"),
-            "issue_date": datetime.now().strftime("%B %d, %Y"),
-            "get_ordinal_suffix": get_ordinal_suffix,
-            "title_text": "CERTIFICATE OF EXCELLENCE",
-            "text_color": "#111111",
-            "competition_phrase": "international cybersecurity competition",
-            "is_preview": True,
-            "total_teams": None,
-        }
-
-        # 現在の設定を適用（エラーハンドリング付き）
+    def get_certificate_logo():
+        """管理者用：証明書ロゴを取得"""
         try:
-            # 同様に参加チーム総数を試算
-            try:
+            settings = CertificateSettings.query.first()
+            if settings and hasattr(settings, 'logo_data') and settings.logo_data:
+                # データベースからロゴを返す
+                from flask import Response
+                return Response(settings.logo_data, mimetype='image/png')
+            else:
+                # デフォルトロゴを返す
+                default_logo_path = os.path.join(os.path.dirname(__file__), "assets", "default-logo.png")
+                if os.path.exists(default_logo_path):
+                    with open(default_logo_path, 'rb') as f:
+                        from flask import Response
+                        return Response(f.read(), mimetype='image/png')
+                else:
+                    from flask import abort
+                    abort(404)
+        except Exception as e:
+            from flask import abort
+            abort(500)
+
+    @certificate_blueprint.route("/admin/certificates/sample-pdf")
+    @admins_only
+    def sample_certificate():
+        """管理者用サンプル証明書PDF生成"""
+        # 設定を取得
+        try:
+            settings = CertificateSettings.query.first()
+        except Exception as e:
+            settings = None
+
+        # 証明書ロゴを取得（データベース優先、なければデフォルトファイル）
+        logo_data_from_db = None
+        if settings and hasattr(settings, 'logo_data') and settings.logo_data:
+            logo_data_from_db = settings.logo_data
+
+        # ロゴのパスを設定
+        if logo_data_from_db:
+            certificate_logo_path = "db-logo.png"
+        else:
+            certificate_logo_path = "assets/default-logo.png"
+
+        # 参加チーム総数を取得
+        try:
+            total_teams = (
+                db.session.query(Solves.team_id)
+                .filter(Solves.team_id.isnot(None))
+                .distinct()
+                .count()
+            )
+            if not total_teams:
                 total_teams = (
-                    db.session.query(Solves.team_id)
-                    .filter(Solves.team_id.isnot(None))
+                    db.session.query(Solves.user_id)
+                    .filter(Solves.user_id.isnot(None))
                     .distinct()
                     .count()
                 )
-                if not total_teams:
-                    total_teams = (
-                        db.session.query(Solves.user_id)
-                        .filter(Solves.user_id.isnot(None))
-                        .distinct()
-                        .count()
-                    )
-                if not total_teams:
-                    total_teams = Teams.query.count() or Users.query.count()
-            except Exception as e:
-                print(f"Failed to compute total_teams (preview): {e}")
-                total_teams = None
-
-            settings = CertificateSettings.query.first()
-            if settings:
-                sample_data["ctf_title"] = settings.ctf_title or "Sample CTF 2024"
-                sample_data["text_color"] = "#111111"
-                sample_data["title_text"] = (
-                    getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE")
-                    or "CERTIFICATE OF EXCELLENCE"
-                )
-                sample_data["footer_text"] = (
-                    getattr(
-                        settings,
-                        "footer_text",
-                        "Congratulations on your outstanding performance.",
-                    )
-                    or "Congratulations on your outstanding performance."
-                )
-                sample_data["competition_phrase"] = (
-                    getattr(
-                        settings,
-                        "competition_phrase",
-                        "international cybersecurity competition",
-                    )
-                    or "international cybersecurity competition"
-                )
-                sample_data["event_id"] = getattr(settings, "event_id", "")
-                sample_data["total_teams"] = total_teams
-            else:
-                sample_data["text_color"] = "#111111"
-                sample_data["title_text"] = "CERTIFICATE OF EXCELLENCE"
-                sample_data["footer_text"] = (
-                    "Congratulations on your outstanding performance."
-                )
-                sample_data["competition_phrase"] = (
-                    "international cybersecurity competition"
-                )
-                sample_data["event_id"] = "2986" # Sample ID for default preview if no settings
-                sample_data["total_teams"] = total_teams
+            if not total_teams:
+                total_teams = Teams.query.count() or Users.query.count()
         except Exception as e:
-            print(f"Settings query error in preview: {e}")
-            sample_data["text_color"] = "#111111"
-            sample_data["title_text"] = "CERTIFICATE OF EXCELLENCE"
-            sample_data["footer_text"] = (
-                "Congratulations on your outstanding performance."
-            )
-            sample_data["competition_phrase"] = (
-                "international cybersecurity competition"
-            )
-            sample_data["event_id"] = ""
-            # even on error, try a safe fallback (None -> 'many')
-            sample_data["total_teams"] = None
+            total_teams = None
 
-        return render_template("certificate_display.html", **sample_data)
+        # サンプルデータを準備
+        certificate_data = {
+            "user_name": None,
+            "team_name": "Sample Team",
+            "score": 1337,
+            "rank": 1,
+            "ctf_title": (settings.ctf_title if settings else get_config("ctf_name", "Sample CTF 2024")),
+            "logo_url": None,
+            "certificate_logo_path": certificate_logo_path,
+            "text_color": "#111111",
+            "title_text": (getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE") if settings else "CERTIFICATE OF EXCELLENCE"),
+            "footer_text": (getattr(settings, "footer_text", "Congratulations on your outstanding performance.") if settings else "Congratulations on your outstanding performance."),
+            "competition_phrase": (getattr(settings, "competition_phrase", "international cybersecurity competition") if settings else "international cybersecurity competition"),
+            "event_id": (getattr(settings, "event_id", "") if settings else ""),
+            "competition_date": datetime.now().strftime("%B %Y"),
+            "issue_date": datetime.now().strftime("%B %d, %Y"),
+            "get_ordinal_suffix": get_ordinal_suffix,
+            "is_preview": False,
+            "total_teams": total_teams,
+            "border_color": (getattr(settings, "border_color", "#d4af37") if settings else "#d4af37"),
+            "title_color": (getattr(settings, "title_color", "#d4af37") if settings else "#d4af37"),
+            "ctf_title_color": (getattr(settings, "ctf_title_color", "#c8a64b") if settings else "#c8a64b"),
+            "accent_color": (getattr(settings, "accent_color", "#c8a64b") if settings else "#c8a64b"),
+            "logo_width": (200 * (getattr(settings, "logo_scale", 100) if settings else 100) // 100),
+            "logo_offset_x": (getattr(settings, "logo_offset_x", 0) if settings else 0),
+            "logo_offset_y": (getattr(settings, "logo_offset_y", 0) if settings else 0),
+        }
+
+        # ファイル名を生成
+        ctf_title_val = settings.ctf_title if settings else get_config("ctf_name", "CTF")
+        safe_ctf_title = re.sub(r'[^\w\-_]', '_', ctf_title_val)
+        filename = f"sample_{safe_ctf_title}_admin_team_certificate.pdf"
+
+        # 共通のPDF生成関数を使用
+        return _generate_certificate_pdf(certificate_data, logo_data_from_db, filename)
 
     # Blueprintを登録
     app.register_blueprint(certificate_blueprint)
@@ -508,25 +649,10 @@ def load(app):
                     app.jinja_loader.loaders.insert(
                         0, FileSystemLoader(template_folder)
                     )
-                    print(f"Template folder added: {template_folder}")
                 else:
                     # 単一のローダーの場合、ChoiceLoaderでラップして追加
                     app.jinja_loader = ChoiceLoader(
                         [FileSystemLoader(template_folder), app.jinja_loader]
                     )
-                    print(
-                        f"Template loader wrapped and folder added: {template_folder}"
-                    )
-
-            print(f"Certificate plugin templates registered: {template_folder}")
     except Exception as e:
-        print(f"Template registration error: {e}")
-
-    # デバッグ: ルート登録後を確認
-    print("CTFd Certificate Plugin: Routes registered")
-    certificate_routes = [
-        rule.rule for rule in app.url_map.iter_rules() if "certificate" in rule.rule
-    ]
-    print(f"App routes after: {certificate_routes}")
-    print(f"Total certificate routes: {len(certificate_routes)}")
-    print("Plugin loaded successfully!")
+        pass
