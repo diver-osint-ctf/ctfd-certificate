@@ -30,7 +30,12 @@
           <h5 class="card-title">Certificate Settings</h5>
         </div>
         <div class="card-body">
-          <form method="POST" enctype="multipart/form-data" autocomplete="off" class="w-100">
+          <form
+            method="POST"
+            enctype="multipart/form-data"
+            autocomplete="off"
+            class="w-100"
+          >
             <input type="hidden" name="nonce" value="{{ nonce }}" />
 
             <div class="form-group">
@@ -59,10 +64,10 @@
                     class="form-control"
                     id="title_text"
                     name="title_text"
-                    value="{{ settings.title_text or 'CERTIFICATE OF EXCELLENCE' }}"
+                    value="{{ settings.title_text or 'CERTIFICATE OF PARTICIPATION' }}"
                   />
                   <small class="form-text text-muted"
-                    >e.g. CERTIFICATE OF EXCELLENCE</small
+                    >e.g. CERTIFICATE OF PARTICIPATION</small
                   >
                 </div>
               </div>
@@ -126,10 +131,13 @@
                   accept="image/png,image/jpeg"
                   onchange="previewLogo(this)"
                 />
-                <label class="custom-file-label" for="logo_file">Choose logo file...</label>
+                <label class="custom-file-label" for="logo_file"
+                  >Choose logo file...</label
+                >
               </div>
               <small class="form-text text-muted">
-                PNG or JPG format, max 5MB, recommended: square image (e.g., 200x200px)
+                PNG or JPG format, max 5MB, recommended: square image (e.g.,
+                200x200px)
               </small>
 
               {% if logo_data_base64 %}
@@ -139,7 +147,13 @@
                   id="current-logo-preview"
                   src="data:image/png;base64,{{ logo_data_base64 }}"
                   alt="Current Logo"
-                  style="max-width: 150px; max-height: 150px; border: 1px solid #dee2e6; padding: 5px; background: white;"
+                  style="
+                    max-width: 150px;
+                    max-height: 150px;
+                    border: 1px solid #dee2e6;
+                    padding: 5px;
+                    background: white;
+                  "
                 />
                 <div class="mt-2">
                   <button
@@ -149,22 +163,35 @@
                   >
                     Reset to Default Logo
                   </button>
-                  <input type="hidden" id="reset_logo" name="reset_logo" value="" />
+                  <input
+                    type="hidden"
+                    id="reset_logo"
+                    name="reset_logo"
+                    value=""
+                  />
                 </div>
               </div>
               {% else %}
               <div class="mt-3">
-                <p class="text-muted"><em>Using default logo (assets/default-logo.png)</em></p>
+                <p class="text-muted">
+                  <em>Using default logo (assets/default-logo.png)</em>
+                </p>
               </div>
               {% endif %}
 
-              <div id="new-logo-preview" class="mt-3" style="display: none;">
+              <div id="new-logo-preview" class="mt-3" style="display: none">
                 <p class="mb-2"><strong>New Logo Preview:</strong></p>
                 <img
                   id="new-logo-img"
                   src=""
                   alt="New Logo"
-                  style="max-width: 150px; max-height: 150px; border: 1px solid #dee2e6; padding: 5px; background: white;"
+                  style="
+                    max-width: 150px;
+                    max-height: 150px;
+                    border: 1px solid #dee2e6;
+                    padding: 5px;
+                    background: white;
+                  "
                 />
               </div>
             </div>
@@ -186,7 +213,10 @@
                       min="10"
                       max="300"
                     />
-                    <small class="form-text text-muted">Logo scale (100% = 200px width, aspect ratio maintained)</small>
+                    <small class="form-text text-muted"
+                      >Logo scale (100% = 200px width, aspect ratio
+                      maintained)</small
+                    >
                   </div>
                 </div>
               </div>
@@ -203,7 +233,9 @@
                       min="-1000"
                       max="1000"
                     />
-                    <small class="form-text text-muted">Horizontal offset from left (+ = right, - = left)</small>
+                    <small class="form-text text-muted"
+                      >Horizontal offset from left (+ = right, - = left)</small
+                    >
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -218,7 +250,9 @@
                       min="-1000"
                       max="1000"
                     />
-                    <small class="form-text text-muted">Vertical offset from bottom (+ = down, - = up)</small>
+                    <small class="form-text text-muted"
+                      >Vertical offset from bottom (+ = down, - = up)</small
+                    >
                   </div>
                 </div>
               </div>
@@ -257,7 +291,8 @@
             <i class="fas fa-download"></i> Download Sample PDF
           </a>
           <small class="form-text text-muted mt-2">
-            The sample PDF will use the current saved settings. Please click "Update" button above to save your changes before downloading.
+            The sample PDF will use the current saved settings. Please click
+            "Update" button above to save your changes before downloading.
           </small>
         </div>
       </div>
@@ -269,13 +304,13 @@
   function resetToDefaults() {
     const defaults = {
       ctf_title: "{{ ctf_name_from_config }}",
-      title_text: "CERTIFICATE OF EXCELLENCE",
+      title_text: "CERTIFICATE OF PARTICIPATION",
       footer_text: "Congratulations on your outstanding performance.",
       competition_phrase: "international cybersecurity competition",
       event_id: "2986",
-      logo_scale: "130",
-      logo_offset_x: "30",
-      logo_offset_y: "-70",
+      logo_scale: "200",
+      logo_offset_x: "0",
+      logo_offset_y: "-50",
     };
     for (const [id, val] of Object.entries(defaults)) {
       const el = document.getElementById(id);
@@ -286,47 +321,47 @@
   // ロゴプレビュー機能
   function previewLogo(input) {
     const file = input.files[0];
-    const fileLabel = document.querySelector('.custom-file-label');
+    const fileLabel = document.querySelector(".custom-file-label");
 
     if (file) {
       fileLabel.textContent = file.name;
 
       // ファイルサイズチェック（5MB）
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
-        input.value = '';
-        fileLabel.textContent = 'Choose logo file...';
+        alert("File size must be less than 5MB");
+        input.value = "";
+        fileLabel.textContent = "Choose logo file...";
         return;
       }
 
       // ファイル形式チェック
-      if (!file.type.match('image/(png|jpeg)')) {
-        alert('Please select a PNG or JPG image');
-        input.value = '';
-        fileLabel.textContent = 'Choose logo file...';
+      if (!file.type.match("image/(png|jpeg)")) {
+        alert("Please select a PNG or JPG image");
+        input.value = "";
+        fileLabel.textContent = "Choose logo file...";
         return;
       }
 
       // プレビュー表示
       const reader = new FileReader();
-      reader.onload = function(e) {
-        const preview = document.getElementById('new-logo-preview');
-        const img = document.getElementById('new-logo-img');
+      reader.onload = function (e) {
+        const preview = document.getElementById("new-logo-preview");
+        const img = document.getElementById("new-logo-img");
         img.src = e.target.result;
-        preview.style.display = 'block';
+        preview.style.display = "block";
       };
       reader.readAsDataURL(file);
     } else {
-      fileLabel.textContent = 'Choose logo file...';
-      document.getElementById('new-logo-preview').style.display = 'none';
+      fileLabel.textContent = "Choose logo file...";
+      document.getElementById("new-logo-preview").style.display = "none";
     }
   }
 
   // ロゴをデフォルトにリセット
   function resetLogo() {
-    if (confirm('Are you sure you want to reset to the default logo?')) {
-      document.getElementById('reset_logo').value = '1';
-      document.querySelector('form').submit();
+    if (confirm("Are you sure you want to reset to the default logo?")) {
+      document.getElementById("reset_logo").value = "1";
+      document.querySelector("form").submit();
     }
   }
 </script>

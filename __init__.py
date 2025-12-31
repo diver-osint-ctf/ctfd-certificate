@@ -114,7 +114,7 @@ def load(app):
 
                 new_columns = {
                     "text_color": "#2A2A2A",
-                    "title_text": "CERTIFICATE OF EXCELLENCE",
+                    "title_text": "CERTIFICATE OF PARTICIPATION",
                     "footer_text": "Congratulations on your outstanding performance.",
                     "competition_phrase": "international cybersecurity competition",
                 }
@@ -200,7 +200,7 @@ def load(app):
                 settings.ctf_title = request.form.get("ctf_title", "CTF Certificate")
                 # New customizable fields
                 settings.title_text = request.form.get(
-                    "title_text", settings.title_text or "CERTIFICATE OF EXCELLENCE"
+                    "title_text", settings.title_text or "CERTIFICATE OF PARTICIPATION"
                 )
                 settings.footer_text = request.form.get(
                     "footer_text",
@@ -485,7 +485,7 @@ def load(app):
             "logo_url": logo_url,
             "certificate_logo_path": certificate_logo_path,
             "text_color": "#111111",
-            "title_text": (getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE") if settings else "CERTIFICATE OF EXCELLENCE"),
+            "title_text": (getattr(settings, "title_text", "CERTIFICATE OF PARTICIPATION") if settings else "CERTIFICATE OF PARTICIPATION"),
             "footer_text": (getattr(settings, "footer_text", "Congratulations on your outstanding performance.") if settings else "Congratulations on your outstanding performance."),
             "competition_phrase": (getattr(settings, "competition_phrase", "international cybersecurity competition") if settings else "international cybersecurity competition"),
             "event_id": (getattr(settings, "event_id", "") if settings else ""),
@@ -613,7 +613,7 @@ def load(app):
             "logo_url": None,
             "certificate_logo_path": certificate_logo_path,
             "text_color": "#111111",
-            "title_text": (getattr(settings, "title_text", "CERTIFICATE OF EXCELLENCE") if settings else "CERTIFICATE OF EXCELLENCE"),
+            "title_text": (getattr(settings, "title_text", "CERTIFICATE OF PARTICIPATION") if settings else "CERTIFICATE OF PARTICIPATION"),
             "footer_text": (getattr(settings, "footer_text", "Congratulations on your outstanding performance.") if settings else "Congratulations on your outstanding performance."),
             "competition_phrase": (getattr(settings, "competition_phrase", "international cybersecurity competition") if settings else "international cybersecurity competition"),
             "event_id": (getattr(settings, "event_id", "") if settings else ""),

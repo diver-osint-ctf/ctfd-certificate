@@ -11,7 +11,7 @@ class CertificateSettings(db.Model):
 
     id = Column(Integer, primary_key=True)
     ctf_title = Column(String(255), default="CTF Certificate", nullable=False)
-    title_text = Column(String(255), default="CERTIFICATE OF EXCELLENCE", nullable=False)
+    title_text = Column(String(255), default="CERTIFICATE OF PARTICIPATION", nullable=False)
     footer_text = Column(
         String(255), default="Congratulations on your outstanding performance.", nullable=False
     )
