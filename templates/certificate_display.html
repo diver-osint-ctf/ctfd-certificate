@@ -5,7 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ ctf_title }} - Certificate</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Playfair+Display:wght@400;700&display=swap");
+      /* LINE Seed JP Font */
+      @font-face {
+        font-family: 'LINE Seed JP';
+        src: url('/plugins/ctfd-certificate/assets/fonts/LINESeedJP-Regular.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'LINE Seed JP';
+        src: url('/plugins/ctfd-certificate/assets/fonts/LINESeedJP-Bold.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
 
       html,
       body {
@@ -169,13 +183,14 @@
       .title {
         align-self: end;
         justify-self: center;
-        font-family: "Playfair Display", serif;
+        font-family: "LINE Seed JP", sans-serif;
         font-weight: 700;
         font-size: clamp(22px, 4.2vw, 54px);
         letter-spacing: 0.12em;
         color: #111111;
         text-align: center; /* Added centering */
         width: 100%;
+        margin-top: 30px;
       }
 
       .recipient {
@@ -186,13 +201,13 @@
         transform: translateY(0.8cm);
       }
       .recipient .label {
-        font-family: "Noto Sans JP", sans-serif;
+        font-family: "LINE Seed JP", sans-serif;
         font-size: clamp(12px, 1.8vw, 20px);
         opacity: 0.75;
         margin-bottom: 0.4em;
       }
       .recipient .name {
-        font-family: "Playfair Display", serif;
+        font-family: "LINE Seed JP", sans-serif;
         font-size: clamp(20px, 3.6vw, 44px);
         font-weight: 700;
         letter-spacing: 0.04em;
@@ -207,7 +222,7 @@
         justify-content: center;
         align-items: center;
         width: 100%;
-        gap: 25px; /* Spacing between CTF row and others */
+        gap: 25px;
         text-align: center;
         /* Reduced transform to handle taller content */
         transform: translateY(0.5cm);
@@ -217,18 +232,21 @@
          gap: clamp(20px, 4vw, 60px);
          justify-content: center;
       }
+      .details-row-bottom {
+         margin-top: 10px;
+      }
       .kv {
         min-width: 120px;
       }
       .kv .k {
-        font-family: "Noto Sans JP", sans-serif;
+        font-family: "LINE Seed JP", sans-serif;
         font-size: clamp(11px, 1.6vw, 18px);
         color: #444;
         letter-spacing: 0.06em;
       }
       .kv .v {
         margin-top: 4px;
-        font-family: "Playfair Display", serif;
+        font-family: "LINE Seed JP", sans-serif;
         font-size: clamp(16px, 2.6vw, 32px);
         font-weight: 700;
         color: #000;
@@ -238,7 +256,7 @@
         align-self: start;
         justify-self: center;
         text-align: center;
-        font-family: "Noto Sans JP", sans-serif;
+        font-family: "LINE Seed JP", sans-serif;
         color: #333;
         font-size: clamp(12px, 1.8vw, 18px);
         margin-top: 0cm; /* Adjusted to let grid handle it */
@@ -252,10 +270,9 @@
         align-self: center;
         justify-self: center;
         text-align: center;
-        font-family: "Noto Sans JP", sans-serif;
+        font-family: "LINE Seed JP", sans-serif;
         color: #333;
         font-size: clamp(12px, 1.8vw, 18px);
-        /* Removed large margin to prevent pushout, grid handles positioning */
         margin-top: 0;
       }
 
@@ -263,8 +280,16 @@
         position: absolute;
         bottom: 2%;
         right: 3.5%;
-        font-family: "Noto Sans JP", sans-serif;
+        font-family: "LINE Seed JP", sans-serif;
         font-size: 10pt;
+      }
+      .member-list {
+        position: absolute;
+        bottom: 0.5%;
+        right: 3.5%;
+        font-family: "LINE Seed JP", sans-serif;
+        font-size: 9pt;
+        color: #666;
       }
       .certificate-logo {
         position: absolute;
@@ -430,6 +455,7 @@
             transform: none;
             width: 100%;
             text-align: center;
+            margin-top: 30pt;
             margin-bottom: 35pt; /* Increased margin */
             align-self: auto;
             line-height: 1.3;
@@ -450,15 +476,17 @@
         .details {
             transform: none;
             width: 100%;
-            margin-bottom: 30pt; /* Increased margin */
-            gap: 25pt; /* Spacing between CTF row and others */
-            /* Removed align-self: center */
+            margin-bottom: 30pt;
+            gap: 25pt;
         }
         .details-row {
             display: flex; /* Keep flex ONLY for the row content which is small items */
             gap: 40pt;
             width: 100%;
             justify-content: center;
+        }
+        .details-row-bottom {
+            margin-top: 10pt;
         }
         .kv .k {
             font-size: 10pt;
@@ -517,10 +545,21 @@
             color: #555; /* Ensure visibility */
         }
 
+        .member-list {
+            position: absolute;
+            bottom: 2mm;
+            right: 5mm;
+            font-size: 7pt;
+            width: auto;
+            text-align: right;
+            z-index: 2000;
+            color: #888;
+        }
+
         .certificate-logo {
             position: absolute;
             bottom: {{ 10 - ((logo_offset_y if logo_offset_y is defined else 0) * 0.2645833) }}mm;
-            left: {{ 10 + ((logo_offset_x if logo_offset_x is defined else 0) * 0.2645833) }}mm;
+            left: {{ 148.5 - ((logo_width if logo_width is defined else 200) * 0.2645833 / 2) + ((logo_offset_x if logo_offset_x is defined else 0) * 0.2645833) }}mm;
             width: {{ (logo_width if logo_width is defined else 200) * 0.2645833 }}mm;
             height: auto;
             opacity: 0.85;
@@ -587,7 +626,7 @@
                 <div class="v">{{ ctf_title }}</div>
               </div>
             </div>
-            <div class="details-row">
+            <div class="details-row details-row-bottom">
               <div class="kv">
                 <div class="k">Rank</div>
                 <div class="v">{{ rank }}{{ get_ordinal_suffix(rank) }}</div>
@@ -626,6 +665,9 @@
       {% if event_id %}
       <div class="verification">
         verification: https://ctftime.org/event/{{ event_id }}/
+      </div>
+      <div class="member-list">
+        member list is available in the CTFtime.org
       </div>
       {% endif %}
     </div>
