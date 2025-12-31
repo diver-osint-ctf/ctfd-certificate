@@ -29,9 +29,3 @@ docs/
 out/
 dist/
 build/
-
-# Unused font files (using LINESeedJP instead)
-assets/fonts/LINESeedSans_W_*.woff2
-
-# Setup scripts (using deploy.sh instead)
-setup.sh
