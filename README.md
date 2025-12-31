@@ -48,7 +48,8 @@ docker-compose restart
 ### PDF生成時のスレッディング警告
 
 PDF生成時に以下の警告がログに出ることがありますが、機能には影響ありません:
-```
+
+```txt
 Exception ignored in: <function _after_fork at 0x...>
 AssertionError: Thread.__init__() not called
 ```
