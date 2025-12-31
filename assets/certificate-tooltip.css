@@ -1,58 +1,62 @@
-/* Certificate Tooltip Styles */
+/* Bootstrap Tooltip Clone - Matches CTFd's Bootstrap 5 tooltip exactly */
+
 .certificate-tooltip {
     position: relative;
     display: inline-block;
 }
 
-.certificate-tooltip .tooltip-text {
+.certificate-tooltip .tooltip-inner {
     visibility: hidden;
-    width: 140px;
-    background-color: #333;
-    color: #fff;
+    background-color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
     text-align: center;
     border-radius: 6px;
-    padding: 8px;
+    padding: 4px 8px;
     position: absolute;
-    z-index: 1000;
-    bottom: 125%;
+    z-index: 1080;
+    bottom: 110%;
     left: 50%;
-    margin-left: -70px;
+    transform: translateX(-50%);
+    max-width: 200px;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.15s linear;
     font-size: 14px;
-    font-weight: normal;
+    font-weight: 400;
+    line-height: 1.5;
+    word-wrap: break-word;
     white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-.certificate-tooltip .tooltip-text::after {
+/* Tooltip arrow */
+.certificate-tooltip .tooltip-inner::after {
     content: "";
     position: absolute;
     top: 100%;
     left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #333 transparent transparent transparent;
+    margin-left: -6.4px;
+    width: 0;
+    height: 0;
+    border-left: 6.4px solid transparent;
+    border-right: 6.4px solid transparent;
+    border-top: 6.4px solid rgb(0, 0, 0);
 }
 
-.certificate-tooltip:hover .tooltip-text {
+/* Show tooltip on hover - matches Bootstrap's 0.9 opacity */
+.certificate-tooltip:hover .tooltip-inner {
     visibility: visible;
-    opacity: 1;
+    opacity: 0.9;
 }
 
-/* Animation for smooth appearance */
+/* Fade animation - matches Bootstrap's fade effect */
 @keyframes tooltipFadeIn {
     from {
         opacity: 0;
-        transform: translateY(-5px);
     }
     to {
-        opacity: 1;
-        transform: translateY(0);
+        opacity: 0.9;
     }
 }
 
-.certificate-tooltip:hover .tooltip-text {
-    animation: tooltipFadeIn 0.3s ease-in-out;
+.certificate-tooltip:hover .tooltip-inner {
+    animation: tooltipFadeIn 0.15s linear;
 }

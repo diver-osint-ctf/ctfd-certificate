@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const icon = document.createElement('i');
         icon.className = 'cursor-pointer fas fa-certificate fa-2x px-2 pt-3';
 
-        // Create CSS-based tooltip
+        // Create custom tooltip that matches Bootstrap's style exactly
         const tooltipText = document.createElement('span');
-        tooltipText.className = 'tooltip-text';
+        tooltipText.className = 'tooltip-inner';
         tooltipText.textContent = 'Generate Certificate';
 
         btnLink.appendChild(icon);
