@@ -182,7 +182,7 @@
                       class="form-control"
                       id="logo_scale"
                       name="logo_scale"
-                      value="{{ settings.logo_scale if settings and settings.logo_scale else 100 }}"
+                      value="{{ settings.logo_scale if settings and settings.logo_scale else 130 }}"
                       min="10"
                       max="300"
                     />
@@ -199,9 +199,9 @@
                       class="form-control"
                       id="logo_offset_x"
                       name="logo_offset_x"
-                      value="{{ settings.logo_offset_x if settings and settings.logo_offset_x is not none else 0 }}"
-                      min="-100"
-                      max="100"
+                      value="{{ settings.logo_offset_x if settings and settings.logo_offset_x is not none else 30 }}"
+                      min="-1000"
+                      max="1000"
                     />
                     <small class="form-text text-muted">Horizontal offset from left (+ = right, - = left)</small>
                   </div>
@@ -214,9 +214,9 @@
                       class="form-control"
                       id="logo_offset_y"
                       name="logo_offset_y"
-                      value="{{ settings.logo_offset_y if settings and settings.logo_offset_y is not none else 0 }}"
-                      min="-100"
-                      max="100"
+                      value="{{ settings.logo_offset_y if settings and settings.logo_offset_y is not none else -70 }}"
+                      min="-1000"
+                      max="1000"
                     />
                     <small class="form-text text-muted">Vertical offset from bottom (+ = down, - = up)</small>
                   </div>
@@ -272,7 +272,10 @@
       title_text: "CERTIFICATE OF EXCELLENCE",
       footer_text: "Congratulations on your outstanding performance.",
       competition_phrase: "international cybersecurity competition",
-      event_id: "",
+      event_id: "2986",
+      logo_scale: "130",
+      logo_offset_x: "30",
+      logo_offset_y: "-70",
     };
     for (const [id, val] of Object.entries(defaults)) {
       const el = document.getElementById(id);

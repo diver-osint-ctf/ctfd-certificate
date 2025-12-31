@@ -495,9 +495,9 @@ def load(app):
             "title_color": (getattr(settings, "title_color", "#d4af37") if settings else "#d4af37"),
             "ctf_title_color": (getattr(settings, "ctf_title_color", "#c8a64b") if settings else "#c8a64b"),
             "accent_color": (getattr(settings, "accent_color", "#c8a64b") if settings else "#c8a64b"),
-            "logo_width": (200 * (getattr(settings, "logo_scale", 100) if settings else 100) // 100),
-            "logo_offset_x": (getattr(settings, "logo_offset_x", 0) if settings else 0),
-            "logo_offset_y": (getattr(settings, "logo_offset_y", 0) if settings else 0),
+            "logo_width": (200 * (getattr(settings, "logo_scale", 130) if settings else 130) // 100),
+            "logo_offset_x": (getattr(settings, "logo_offset_x", 30) if settings else 30),
+            "logo_offset_y": (getattr(settings, "logo_offset_y", -70) if settings else -70),
         }
 
         # ファイル名を生成
@@ -620,9 +620,9 @@ def load(app):
             "title_color": (getattr(settings, "title_color", "#d4af37") if settings else "#d4af37"),
             "ctf_title_color": (getattr(settings, "ctf_title_color", "#c8a64b") if settings else "#c8a64b"),
             "accent_color": (getattr(settings, "accent_color", "#c8a64b") if settings else "#c8a64b"),
-            "logo_width": (200 * (getattr(settings, "logo_scale", 100) if settings else 100) // 100),
-            "logo_offset_x": (getattr(settings, "logo_offset_x", 0) if settings else 0),
-            "logo_offset_y": (getattr(settings, "logo_offset_y", 0) if settings else 0),
+            "logo_width": (200 * (getattr(settings, "logo_scale", 130) if settings else 130) // 100),
+            "logo_offset_x": (getattr(settings, "logo_offset_x", 30) if settings else 30),
+            "logo_offset_y": (getattr(settings, "logo_offset_y", -70) if settings else -70),
         }
 
         # ファイル名を生成
