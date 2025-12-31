@@ -214,7 +214,7 @@
       }
       .details-row {
          display: flex;
-         gap: clamp(12px, 3vw, 40px);
+         gap: clamp(20px, 4vw, 60px);
          justify-content: center;
       }
       .kv {
@@ -456,7 +456,7 @@
         }
         .details-row {
             display: flex; /* Keep flex ONLY for the row content which is small items */
-            gap: 30pt;
+            gap: 40pt;
             width: 100%;
             justify-content: center;
         }
@@ -519,14 +519,14 @@
 
         .certificate-logo {
             position: absolute;
-            bottom: calc(10mm + {{ logo_offset_y if logo_offset_y is defined else 0 }}px);
-            left: calc(10mm + {{ logo_offset_x if logo_offset_x is defined else 0 }}px);
-            width: {{ logo_width if logo_width is defined else 200 }}px;
+            bottom: {{ 10 - ((logo_offset_y if logo_offset_y is defined else 0) * 0.2645833) }}mm;
+            left: {{ 10 + ((logo_offset_x if logo_offset_x is defined else 0) * 0.2645833) }}mm;
+            width: {{ (logo_width if logo_width is defined else 200) * 0.2645833 }}mm;
             height: auto;
             opacity: 0.85;
         }
         .certificate-logo img {
-            width: {{ logo_width if logo_width is defined else 200 }}px;
+            width: {{ (logo_width if logo_width is defined else 200) * 0.2645833 }}mm;
             height: auto;
             display: block;
         }
