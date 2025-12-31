@@ -1,4 +1,4 @@
-PLUGINS_PATH=${1:-"/home/ctf/CTFd/CTFd/plugins"}
+PLUGINS_PATH=${1:-"/opt/CTFd/CTFd/plugins"}
 
 # Install python dependencies
 # Install system dependencies for WeasyPrint
