@@ -466,8 +466,10 @@ def load(app):
 
         # ロゴのパスまたはデータURIを設定
         if logo_data_from_db:
-            # データベースにロゴがある場合
-            certificate_logo_path = "db-logo.png"  # カスタムurl_fetcherで処理される特別なパス
+            # データベースにロゴがある場合、base64エンコードしてdata URIとして埋め込む
+            import base64
+            logo_base64 = base64.b64encode(logo_data_from_db).decode('utf-8')
+            certificate_logo_path = f"data:image/png;base64,{logo_base64}"
         else:
             # デフォルトのロゴファイルを使用
             certificate_logo_path = "assets/default-logo.png"
@@ -573,7 +575,10 @@ def load(app):
 
         # ロゴのパスを設定
         if logo_data_from_db:
-            certificate_logo_path = "db-logo.png"
+            # データベースにロゴがある場合、base64エンコードしてdata URIとして埋め込む
+            import base64
+            logo_base64 = base64.b64encode(logo_data_from_db).decode('utf-8')
+            certificate_logo_path = f"data:image/png;base64,{logo_base64}"
         else:
             certificate_logo_path = "assets/default-logo.png"
 
