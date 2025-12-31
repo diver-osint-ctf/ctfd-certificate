@@ -2,7 +2,6 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ ctf_title }} - Certificate</title>
     <style>
       /* LINE Seed JP Font - WOFF2 format with Japanese characters */
@@ -19,29 +18,32 @@
         font-style: normal;
       }
 
-      html,
-      body {
+      /* PDF Page Settings */
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+
+      html, body {
+        width: 297mm;
+        height: 210mm;
         margin: 0;
         padding: 0;
-        height: 100%;
-        background: #f5f5f5;
+        background: #fff;
+        overflow: hidden;
       }
 
       .page {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 297mm;
+        height: 210mm;
+        display: block;
       }
 
-      /* Screen styles (Modern CSS) */
       .certificate {
+        width: 297mm;
+        height: 210mm;
+        margin: 0;
         position: relative;
-        width: min(100vw, 100vh * 1.294);
-        aspect-ratio: 1.294 / 1;
-        overflow: hidden;
         background: radial-gradient(
             120% 80% at 50% 50%,
             rgba(0, 0, 0, 0.06),
@@ -49,40 +51,46 @@
             rgba(0, 0, 0, 0) 65%
           ),
           linear-gradient(180deg, #fbfbf8 0%, #ffffff 40%, #faf6ed 100%);
-        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18),
-          0 2px 6px rgba(0, 0, 0, 0.08);
-        border-radius: 10px;
         color: #111111;
       }
 
       .frame {
         position: absolute;
-        inset: 3.5%;
+        top: 15mm;
+        left: 15mm;
+        right: 15mm;
+        bottom: 15mm;
         border-radius: 8px;
       }
       .frame::before,
       .frame::after {
         content: "";
         position: absolute;
-        inset: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         border-radius: 8px;
       }
       .frame::before {
         border: 6px double #c8a64b;
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
       }
       .frame::after {
-        inset: 1.2%;
+        top: 2mm;
+        left: 2mm;
+        right: 2mm;
+        bottom: 2mm;
         border: 2px solid rgba(0, 0, 0, 0.06);
         border-radius: 6px;
       }
 
       .gild {
         position: absolute;
-        inset: 0;
-        pointer-events: none;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
       }
-      /* Simplify gild for print/compatibility if needed, but keeping for screen */
       .gild::before,
       .gild::after {
         content: "";
@@ -122,112 +130,94 @@
         width: 60px;
         height: 60px;
         opacity: 0.18;
-        filter: saturate(1.2);
+        background: #c8a64b;
       }
       .corner.tl {
         top: 4.5%;
         left: 4.5%;
-        background: conic-gradient(
-          from 180deg,
-          #c8a64b,
-          #e6d08c 35%,
-          transparent 36%
-        );
+        background: linear-gradient(135deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
         border-radius: 8px 0 0 0;
       }
       .corner.tr {
         top: 4.5%;
         right: 4.5%;
-        background: conic-gradient(
-          from 270deg,
-          #c8a64b,
-          #e6d08c 35%,
-          transparent 36%
-        );
+        background: linear-gradient(-135deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
         border-radius: 0 8px 0 0;
       }
       .corner.bl {
         bottom: 4.5%;
         left: 4.5%;
-        background: conic-gradient(
-          from 90deg,
-          #c8a64b,
-          #e6d08c 35%,
-          transparent 36%
-        );
+        background: linear-gradient(45deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
         border-radius: 0 0 0 8px;
       }
       .corner.br {
         bottom: 4.5%;
         right: 4.5%;
-        background: conic-gradient(
-          from 0deg,
-          #c8a64b,
-          #e6d08c 35%,
-          transparent 36%
-        );
+        background: linear-gradient(-45deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
         border-radius: 0 0 8px 0;
       }
 
       .overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-        display: grid;
-        grid-template-rows: 20% 15% auto auto 15%;
-        padding: 4% 6%;
+        position: relative;
+        display: block;
+        padding: 20mm 15mm;
+        text-align: center;
+        height: 100%;
+        box-sizing: border-box;
+      }
+
+      .overlay > div {
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        position: relative;
       }
 
       .title {
         font-family: "LINE Seed JP", sans-serif;
         font-weight: 700;
-        font-size: clamp(22px, 4.2vw, 54px);
+        font-size: 32pt;
         letter-spacing: 0.12em;
         color: #111111;
         text-align: center;
         width: 100%;
-        margin-top: 30px;
+        margin-top: 30pt;
+        margin-bottom: 35pt;
+        line-height: 1.3;
       }
 
       .recipient {
-        align-self: start;
-        justify-self: center;
+        width: 100%;
+        margin-bottom: 35pt;
         text-align: center;
         color: inherit;
-        transform: translateY(0.8cm);
       }
       .recipient .label {
         font-family: "LINE Seed JP", sans-serif;
         opacity: 0.75;
         margin-bottom: 0.4em;
-        font-size: 14px;
+        font-size: 14pt;
       }
       .recipient .name {
         font-family: "LINE Seed JP", sans-serif;
         font-weight: 700;
         letter-spacing: 0.04em;
-        font-size: 28px;
+        font-size: 32pt;
       }
 
       .details {
-        align-self: center;
-        justify-self: center;
-        /* Changed to flex column for separate rows */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
         width: 100%;
+        margin-bottom: 30pt;
         text-align: center;
-        /* Reduced transform to handle taller content */
-        transform: translateY(0.5cm);
+        display: block;
       }
       .details-row {
-         display: flex;
-         justify-content: center;
+        display: flex;
+        width: 100%;
+        justify-content: center;
       }
       .details-row-bottom {
-         margin-top: 10px;
+        margin-top: 10pt;
       }
       .kv {
         min-width: 120px;
@@ -236,359 +226,74 @@
         font-family: "LINE Seed JP", sans-serif;
         color: #444;
         letter-spacing: 0.06em;
-        font-size: 12px;
+        font-size: 10pt;
       }
       .kv .v {
         margin-top: 4px;
         font-family: "LINE Seed JP", sans-serif;
         font-weight: 700;
         color: #000;
-        font-size: 20px;
+        font-size: 18pt;
       }
 
       .summary {
         text-align: center;
         font-family: "LINE Seed JP", sans-serif;
         color: #333;
-        max-width: 80%;
-        transform: translateY(0.5cm);
+        font-size: 11pt;
+        margin-top: 20pt;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 90%;
         line-height: 1.6;
-        font-size: 14px;
       }
 
       .footer {
-        align-self: center;
-        justify-self: center;
         text-align: center;
         font-family: "LINE Seed JP", sans-serif;
         color: #333;
-        margin-top: 0;
-        font-size: 14px;
+        font-size: 11pt;
+        margin-top: 25pt;
       }
 
       .verification {
         position: absolute;
-        bottom: 2%;
-        right: 3.5%;
+        bottom: 5mm;
+        right: 5mm;
         font-family: "LINE Seed JP", sans-serif;
-        font-size: 10pt;
+        font-size: 8pt;
+        width: auto;
+        text-align: right;
+        z-index: 2000;
+        color: #555;
       }
       .member-list {
         position: absolute;
-        bottom: 0.5%;
-        right: 3.5%;
+        bottom: 2mm;
+        right: 5mm;
         font-family: "LINE Seed JP", sans-serif;
-        font-size: 9pt;
-        color: #666;
+        font-size: 7pt;
+        width: auto;
+        text-align: right;
+        z-index: 2000;
+        color: #888;
       }
       .certificate-logo {
         position: absolute;
-        bottom: 4%;
-        left: 4%;
-        max-width: 120px;
-        max-height: 80px;
+        bottom: {{ 10 - ((logo_offset_y if logo_offset_y is defined else 0) * 0.2645833) }}mm;
+        left: {{ 148.5 - ((logo_width if logo_width is defined else 200) * 0.2645833 / 2) + ((logo_offset_x if logo_offset_x is defined else 0) * 0.2645833) }}mm;
+        width: {{ (logo_width if logo_width is defined else 200) * 0.2645833 }}mm;
+        height: auto;
         opacity: 0.85;
       }
       .certificate-logo img {
-        width: 100%;
+        width: {{ (logo_width if logo_width is defined else 200) * 0.2645833 }}mm;
         height: auto;
         display: block;
-      }
-      .actions {
-        position: fixed;
-        top: 12px;
-        right: 12px;
-        display: flex;
-        z-index: 2147483647; /* Max Z-index */
-      }
-      .actions .btn {
-        appearance: none;
-        border: none;
-        border-radius: 4px; /* Bootstrap-ish */
-        padding: 6px 12px;
-        background: #343a40; /* Bootstrap dark */
-        color: #fff;
-        cursor: pointer;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        font-size: 14px;
-        line-height: 1.5;
-        transition: background-color 0.15s ease-in-out;
-      }
-      .actions .btn:hover {
-        background-color: #23272b;
-      }
-      .actions .btn.secondary {
-        background: #6c757d; /* Bootstrap secondary */
-      }
-      .actions .btn.secondary:hover {
-        background-color: #5a6268;
-      }
-
-      /* Tooltip Styles (Mimicking Bootstrap 5) */
-      [data-tooltip] {
-        position: relative;
-      }
-      [data-tooltip]::before {
-        content: attr(data-tooltip);
-        position: absolute;
-        top: calc(100% + 5px); /* Just below button */
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #000;
-        color: #fff;
-        padding: 4px 8px;
-        border-radius: 4px; /* Bootstrap .tooltip-inner radius */
-        font-size: 0.875rem;
-        line-height: 1.5;
-        white-space: nowrap;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.15s linear;
-        z-index: 2147483647;
-        pointer-events: none;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        text-align: center;
-      }
-      [data-tooltip]::after {
-        content: "";
-        position: absolute;
-        top: 100%; /* At bottom edge of button */
-        left: 50%;
-        transform: translateX(-50%);
-        border-width: 5px;
-        border-style: solid;
-        border-color: transparent transparent #000 transparent; /* Arrow pointing up */
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.15s linear;
-        z-index: 2147483647;
-      }
-      [data-tooltip]:hover::before,
-      [data-tooltip]:hover::after {
-        opacity: 0.9; /* Bootstrap default opacity */
-        visibility: visible;
-      }
-
-
-
-      /* PDF Generation / Print Styles */
-      @media print {
-        @page {
-          size: A4 landscape;
-          margin: 0;
-        }
-
-        html, body {
-          width: 297mm;
-          height: 210mm;
-          margin: 0;
-          padding: 0;
-          background: #fff;
-          /* Reset overflow for print */
-          overflow: hidden;
-        }
-
-        .actions {
-          display: none !important;
-        }
-
-
-        .page {
-          width: 297mm;
-          height: 210mm;
-          display: block;
-        }
-
-        .certificate {
-          /* Fixed size for A4 landscape */
-          width: 297mm;
-          height: 210mm;
-          /* Remove aspect-ratio and min(), unsupported by WeasyPrint */
-          aspect-ratio: auto;
-          min-width: unset;
-          max-width: unset;
-          /* Remove flex centering hack from screen */
-          margin: 0;
-          border-radius: 0;
-          box-shadow: none;
-        }
-
-        /* Fix inset -> top/left/right/bottom for WeasyPrint */
-        /* Fix inset -> top/left/right/bottom for WeasyPrint */
-        .frame {
-            top: 15mm; left: 15mm; right: 15mm; bottom: 15mm; /* Increased margin for "outside" content */
-            inset: auto; /* reset */
-        }
-        .frame::before, .frame::after {
-            top: 0; left: 0; right: 0; bottom: 0;
-            inset: auto;
-        }
-        /* Except .frame::after had 1.2% inset relative to frame, we can keep it simple or adjust */
-        .frame::after {
-            top: 2mm; left: 2mm; right: 2mm; bottom: 2mm;
-        }
-
-        .gild {
-            top: 0; left: 0; right: 0; bottom: 0;
-            inset: auto;
-        }
-        .overlay {
-            top: 0; left: 0; right: 0; bottom: 0;
-            inset: auto;
-        }
-
-        /* Clamp replacements with fixed units (approximate for A4) */
-        /* Clear clamps and transforms for print */
-        .title {
-            font-size: 32pt; /* Slightly reduced */
-            transform: none;
-            width: 100%;
-            text-align: center;
-            margin-top: 30pt;
-            margin-bottom: 35pt; /* Increased margin */
-            align-self: auto;
-            line-height: 1.3;
-        }
-        .recipient {
-            transform: none;
-            width: 100%;
-            margin-bottom: 35pt; /* Increased margin */
-            align-self: auto;
-        }
-        .recipient .label {
-            font-size: 14pt;
-        }
-        .recipient .name {
-            font-size: 32pt;
-        }
-
-        .details {
-            transform: none;
-            width: 100%;
-            margin-bottom: 30pt;
-        }
-        .details-row {
-            display: flex; /* Keep flex ONLY for the row content which is small items */
-            width: 100%;
-            justify-content: center;
-        }
-        .details-row-bottom {
-            margin-top: 10pt;
-        }
-        .kv .k {
-            font-size: 10pt;
-        }
-        .kv .v {
-            font-size: 18pt;
-        }
-
-        .summary {
-            font-size: 11pt;
-            transform: none;
-            margin-top: 20pt;
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 90%;
-            line-height: 1.6;
-            align-self: auto;
-        }
-
-        .footer {
-            font-size: 11pt;
-            margin-top: 25pt;
-            align-self: auto;
-        }
-
-        /* Re-define grid for print to ensure spacing without transforms */
-        /* Re-define grid for print to ensure spacing without transforms */
-        .overlay {
-            position: relative; /* Reset position */
-            display: block; /* Switch to block layout to flow naturally */
-            padding: 20mm 15mm; /* Add padding */
-            text-align: center;
-            height: 100%;
-            box-sizing: border-box;
-            inset: auto; /* Ensure inset is cleared */
-        }
-
-        .overlay > div {
-            /* Reset flex-shrink just in case, though block ignores it */
-            margin-left: auto;
-            margin-right: auto;
-            display: block; /* Ensure blocks */
-            position: relative; /* Ensure overlapping isn't caused by static pos */
-        }
-        
-        /* Insert spacers if using flex column, or rely on margins */
-        
-        .verification {
-            position: absolute; /* Absolute relative to .page */
-            bottom: 5mm;
-            right: 5mm; /* In the 15mm margin space */
-            font-size: 8pt;
-            width: auto;
-            text-align: right;
-            z-index: 2000;
-            color: #555; /* Ensure visibility */
-        }
-
-        .member-list {
-            position: absolute;
-            bottom: 2mm;
-            right: 5mm;
-            font-size: 7pt;
-            width: auto;
-            text-align: right;
-            z-index: 2000;
-            color: #888;
-        }
-
-        .certificate-logo {
-            position: absolute;
-            bottom: {{ 10 - ((logo_offset_y if logo_offset_y is defined else 0) * 0.2645833) }}mm;
-            left: {{ 148.5 - ((logo_width if logo_width is defined else 200) * 0.2645833 / 2) + ((logo_offset_x if logo_offset_x is defined else 0) * 0.2645833) }}mm;
-            width: {{ (logo_width if logo_width is defined else 200) * 0.2645833 }}mm;
-            height: auto;
-            opacity: 0.85;
-        }
-        .certificate-logo img {
-            width: {{ (logo_width if logo_width is defined else 200) * 0.2645833 }}mm;
-            height: auto;
-            display: block;
-        }
-
-        /* Conic-gradient fallbacks */
-        .corner {
-            /* Conic gradient not supported, use simple linear gradient approximation or solid color */
-            background: #c8a64b;
-        }
-        .corner.tl {
-            background: linear-gradient(135deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
-        }
-        .corner.tr {
-            background: linear-gradient(-135deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
-        }
-        .corner.bl {
-            background: linear-gradient(45deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
-        }
-        .corner.br {
-            background: linear-gradient(-45deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
-        }
       }
     </style>
   </head>
   <body>
-    {% if not is_preview %}
-    <div class="actions">
-      <button class="btn secondary" onclick="window.location.href='/team'">
-        ← Back
-      </button>
-      <button class="btn" onclick="window.print()" data-tooltip="Save as PDF">
-        🖨️ Print / Save
-      </button>
-    </div>
-    {% endif %}
-
     <div class="page">
       <div class="certificate">
         <div class="frame"></div>
