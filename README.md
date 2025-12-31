@@ -21,10 +21,7 @@ cp -r ctfd-certificate /path/to/CTFd/CTFd/plugins/
 
 2. 必要な依存関係をインストール:
 ```bash
-cd /path/to/CTFd
-docker-compose exec -T ctfd apt-get update
-docker-compose exec -T ctfd apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libglib2.0-0
-docker-compose exec -T ctfd pip install -r CTFd/plugins/ctfd-certificate/requirements.txt
+bash setup.sh /path/to/CTFd/CTFd/plugins/
 ```
 
 3. CTFdを再起動:
@@ -45,16 +42,3 @@ docker-compose restart
 1. CTF終了後、チームページ（`/team`）にアクセス
 2. 証明書発行ボタンをクリック
 3. PDF証明書がダウンロードされます
-
-## 必要な依存関係
-
-- Python 3.11+
-- WeasyPrint < 61
-- pydyf < 0.11.0
-- libpango-1.0-0
-- libpangoft2-1.0-0
-- libglib2.0-0
-
-## ライセンス
-
-このプラグインはCTFdプラグインとして開発されました。
