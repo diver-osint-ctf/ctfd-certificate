@@ -5,20 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ ctf_title }} - Certificate</title>
     <style>
-      /* LINE Seed JP Font */
+      /* LINE Seed JP Font - WOFF2 format with Japanese characters */
       @font-face {
         font-family: 'LINE Seed JP';
-        src: url('/plugins/ctfd-certificate/assets/fonts/LINESeedJP-Regular.woff2') format('woff2');
+        src: url('assets/fonts/LINESeedJP-Regular.woff2') format('woff2');
         font-weight: 400;
         font-style: normal;
-        font-display: swap;
       }
       @font-face {
         font-family: 'LINE Seed JP';
-        src: url('/plugins/ctfd-certificate/assets/fonts/LINESeedJP-Bold.woff2') format('woff2');
+        src: url('assets/fonts/LINESeedJP-Bold.woff2') format('woff2');
         font-weight: 700;
         font-style: normal;
-        font-display: swap;
       }
 
       html,
@@ -181,14 +179,12 @@
       }
 
       .title {
-        align-self: end;
-        justify-self: center;
         font-family: "LINE Seed JP", sans-serif;
         font-weight: 700;
         font-size: clamp(22px, 4.2vw, 54px);
         letter-spacing: 0.12em;
         color: #111111;
-        text-align: center; /* Added centering */
+        text-align: center;
         width: 100%;
         margin-top: 30px;
       }
@@ -202,15 +198,15 @@
       }
       .recipient .label {
         font-family: "LINE Seed JP", sans-serif;
-        font-size: clamp(12px, 1.8vw, 20px);
         opacity: 0.75;
         margin-bottom: 0.4em;
+        font-size: 14px;
       }
       .recipient .name {
         font-family: "LINE Seed JP", sans-serif;
-        font-size: clamp(20px, 3.6vw, 44px);
         font-weight: 700;
         letter-spacing: 0.04em;
+        font-size: 28px;
       }
 
       .details {
@@ -222,14 +218,12 @@
         justify-content: center;
         align-items: center;
         width: 100%;
-        gap: 25px;
         text-align: center;
         /* Reduced transform to handle taller content */
         transform: translateY(0.5cm);
       }
       .details-row {
          display: flex;
-         gap: clamp(20px, 4vw, 60px);
          justify-content: center;
       }
       .details-row-bottom {
@@ -240,30 +234,26 @@
       }
       .kv .k {
         font-family: "LINE Seed JP", sans-serif;
-        font-size: clamp(11px, 1.6vw, 18px);
         color: #444;
         letter-spacing: 0.06em;
+        font-size: 12px;
       }
       .kv .v {
         margin-top: 4px;
         font-family: "LINE Seed JP", sans-serif;
-        font-size: clamp(16px, 2.6vw, 32px);
         font-weight: 700;
         color: #000;
+        font-size: 20px;
       }
 
       .summary {
-        align-self: start;
-        justify-self: center;
         text-align: center;
         font-family: "LINE Seed JP", sans-serif;
         color: #333;
-        font-size: clamp(12px, 1.8vw, 18px);
-        margin-top: 0cm; /* Adjusted to let grid handle it */
         max-width: 80%;
-        /* Reduced transform to prevent overlap with footer */
         transform: translateY(0.5cm);
         line-height: 1.6;
+        font-size: 14px;
       }
 
       .footer {
@@ -272,8 +262,8 @@
         text-align: center;
         font-family: "LINE Seed JP", sans-serif;
         color: #333;
-        font-size: clamp(12px, 1.8vw, 18px);
         margin-top: 0;
+        font-size: 14px;
       }
 
       .verification {
@@ -309,7 +299,6 @@
         top: 12px;
         right: 12px;
         display: flex;
-        gap: 8px;
         z-index: 2147483647; /* Max Z-index */
       }
       .actions .btn {
@@ -472,16 +461,14 @@
         .recipient .name {
             font-size: 32pt;
         }
-        
+
         .details {
             transform: none;
             width: 100%;
             margin-bottom: 30pt;
-            gap: 25pt;
         }
         .details-row {
             display: flex; /* Keep flex ONLY for the row content which is small items */
-            gap: 40pt;
             width: 100%;
             justify-content: center;
         }
@@ -494,7 +481,7 @@
         .kv .v {
             font-size: 18pt;
         }
-        
+
         .summary {
             font-size: 11pt;
             transform: none;
@@ -505,7 +492,7 @@
             line-height: 1.6;
             align-self: auto;
         }
-        
+
         .footer {
             font-size: 11pt;
             margin-top: 25pt;
@@ -523,7 +510,7 @@
             box-sizing: border-box;
             inset: auto; /* Ensure inset is cleared */
         }
-        
+
         .overlay > div {
             /* Reset flex-shrink just in case, though block ignores it */
             margin-left: auto;
@@ -573,7 +560,7 @@
         /* Conic-gradient fallbacks */
         .corner {
             /* Conic gradient not supported, use simple linear gradient approximation or solid color */
-            background: #c8a64b; 
+            background: #c8a64b;
         }
         .corner.tl {
             background: linear-gradient(135deg, #c8a64b 0%, #e6d08c 35%, transparent 36%);
@@ -596,7 +583,9 @@
       <button class="btn secondary" onclick="window.location.href='/team'">
         ← Back
       </button>
-      <button class="btn" onclick="window.print()" data-tooltip="Save as PDF">🖨️ Print / Save</button>
+      <button class="btn" onclick="window.print()" data-tooltip="Save as PDF">
+        🖨️ Print / Save
+      </button>
     </div>
     {% endif %}
 
@@ -657,7 +646,7 @@
 
         {% if certificate_logo_path %}
         <div class="certificate-logo">
-          <img src="{{ certificate_logo_path }}" alt="Logo">
+          <img src="{{ certificate_logo_path }}" alt="Logo" />
         </div>
         {% endif %}
       </div>
@@ -666,9 +655,7 @@
       <div class="verification">
         verification: https://ctftime.org/event/{{ event_id }}/
       </div>
-      <div class="member-list">
-        member list is available in the CTFtime.org
-      </div>
+      <div class="member-list">member list is available in the CTFtime.org</div>
       {% endif %}
     </div>
   </body>

@@ -19,6 +19,7 @@ import os
 import re
 import base64
 from datetime import datetime
+from urllib.parse import quote
 
 
 def get_certificate_logo_base64(settings=None):
@@ -392,7 +393,7 @@ def load(app):
         # レスポンスを作成
         response = make_response(pdf)
         response.headers["Content-Type"] = "application/pdf"
-        response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+        response.headers["Content-Disposition"] = f"attachment; filename*=UTF-8''{quote(filename)}"
         return response
 
     @certificate_blueprint.route("/certificates/<token>")
