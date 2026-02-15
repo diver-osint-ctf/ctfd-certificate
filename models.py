@@ -1,5 +1,5 @@
 from CTFd.models import db
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import secrets
@@ -18,6 +18,7 @@ class CertificateSettings(db.Model):
     competition_phrase = Column(
         String(255), default="international cybersecurity competition", nullable=False
     )
+    certificate_enabled = Column(Boolean, default=False, nullable=False)
     event_id = Column(String(255), default="", nullable=True)
     logo_data = Column(db.LargeBinary, nullable=True)  # ロゴ画像データ（BLOB）
     logo_scale = Column(Integer, default=100, nullable=True)  # ロゴ拡大率（%、基準200px）

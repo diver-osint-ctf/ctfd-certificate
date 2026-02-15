@@ -142,6 +142,14 @@ def load(app):
                         text("ALTER TABLE certificate_settings ADD COLUMN event_id VARCHAR(255) DEFAULT ''")
                     )
 
+                # certificate_enabled カラムのマイグレーション
+                result = conn.execute(text("DESCRIBE certificate_settings"))
+                columns = [row[0] for row in result]
+                if "certificate_enabled" not in columns:
+                    conn.execute(
+                        text("ALTER TABLE certificate_settings ADD COLUMN certificate_enabled BOOLEAN NOT NULL DEFAULT FALSE")
+                    )
+
         except Exception as e:
             pass
 
@@ -197,6 +205,7 @@ def load(app):
                     settings = CertificateSettings()
                     db.session.add(settings)
 
+                settings.certificate_enabled = request.form.get("certificate_enabled") == "1"
                 settings.ctf_title = request.form.get("ctf_title", "CTF Certificate")
                 # New customizable fields
                 settings.title_text = request.form.get(
@@ -399,6 +408,12 @@ def load(app):
     @certificate_blueprint.route("/certificates/<token>")
     def view_certificate(token):
         """トークンを用いて証明書を表示（ログイン不要、トークン必須）"""
+        # 証明書発行が有効か確認
+        cert_settings = CertificateSettings.query.first()
+        if not cert_settings or not cert_settings.certificate_enabled:
+            from flask import abort
+            abort(403)
+
         token_row = TeamCertificateToken.query.filter_by(token=token).first()
         if not token_row:
             from flask import abort
@@ -512,10 +527,22 @@ def load(app):
         # 共通のPDF生成関数を使用
         return _generate_certificate_pdf(certificate_data, logo_data_from_db, filename)
 
+    @certificate_blueprint.route("/certificates/enabled")
+    def certificates_enabled():
+        """証明書発行が有効かどうかを返すAPI"""
+        settings = CertificateSettings.query.first()
+        enabled = bool(settings and settings.certificate_enabled)
+        return jsonify({"enabled": enabled})
+
     # Token generator: returns URL with token
     @certificate_blueprint.route("/certificates/generate", methods=["POST"])
     @authed_only
     def generate_certificate_compat():
+        # 証明書発行が有効か確認
+        settings = CertificateSettings.query.first()
+        if not settings or not settings.certificate_enabled:
+            return jsonify({"error": "Certificate issuance is not enabled"}), 403
+
         user = get_current_user()
         if not user:
             return jsonify({"error": "User not found"}), 400

@@ -39,6 +39,27 @@
             <input type="hidden" name="nonce" value="{{ nonce }}" />
 
             <div class="form-group">
+              <div class="custom-control custom-switch">
+                <input
+                  type="checkbox"
+                  class="custom-control-input"
+                  id="certificate_enabled"
+                  name="certificate_enabled"
+                  value="1"
+                  {{ "checked" if settings.certificate_enabled else "" }}
+                />
+                <label class="custom-control-label" for="certificate_enabled">
+                  Enable Certificate Issuance After CTF Ends
+                </label>
+              </div>
+              <small class="form-text text-muted">
+                When enabled, participants can download certificates from their team page
+              </small>
+            </div>
+
+            <hr />
+
+            <div class="form-group">
               <label for="ctf_title">CTF Title</label>
               <input
                 type="text"

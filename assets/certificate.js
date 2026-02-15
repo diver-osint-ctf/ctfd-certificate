@@ -28,6 +28,22 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Check if certificate issuance is enabled by admin
+    fetch("/certificates/enabled", { credentials: "same-origin" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.enabled) {
+          return; // Certificate issuance is disabled, don't show button
+        }
+        showCertificateButton(targetContainer);
+      })
+      .catch((error) => {
+        console.error("Failed to check certificate status:", error);
+      });
+  }
+});
+
+function showCertificateButton(targetContainer) {
     // Get team ID from URL or window.init
     const teamId = window.init.teamId || location.pathname.split("/").pop();
 
@@ -136,5 +152,4 @@ document.addEventListener("DOMContentLoaded", () => {
           e.preventDefault();
         });
       });
-  }
-});
+}
