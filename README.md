@@ -43,22 +43,3 @@ docker-compose restart
 2. 証明書発行ボタンをクリック
 3. PDF証明書がダウンロードされます
 
-## トラブルシューティング
-
-### PDF生成時のスレッディング警告
-
-PDF生成時に以下の警告がログに出ることがありますが、機能には影響ありません:
-
-```txt
-Exception ignored in: <function _after_fork at 0x...>
-AssertionError: Thread.__init__() not called
-```
-
-この警告はGunicornのgeventワーカーとWeasyPrintの競合によるものです。ログから警告を消したい場合は、CTFdの`docker-compose.yml`に以下を追加してください:
-
-```yaml
-services:
-  ctfd:
-    environment:
-      - WORKER_CLASS=sync
-```
