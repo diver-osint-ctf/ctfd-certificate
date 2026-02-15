@@ -16,7 +16,7 @@ pushd $CTFD_DIR
 # Install python dependencies
 # Install system dependencies for WeasyPrint
 docker-compose exec -T ctfd apt-get update
-docker-compose exec -T ctfd apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libglib2.0-0
+docker-compose exec -T ctfd apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libglib2.0-0 fonts-noto-cjk
 
 docker-compose exec -T ctfd pip install -r /opt/CTFd/CTFd/plugins/ctfd-certificate/requirements.txt
 
