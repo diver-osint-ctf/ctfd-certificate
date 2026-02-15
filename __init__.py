@@ -22,6 +22,21 @@ from datetime import datetime
 from urllib.parse import quote
 
 
+def get_ctf_end_date_str():
+    """CTFの終了日時を取得し、フォーマットされた文字列を返す。
+    終了日時が設定されていない場合は現在日時を返す。
+    """
+    end_date_raw = get_config("end")
+    if end_date_raw:
+        try:
+            # CTFdはUnixタイムスタンプ（整数）で終了日時を保存する
+            end_date = datetime.fromtimestamp(int(end_date_raw))
+            return end_date.strftime("%B %d, %Y")
+        except (ValueError, TypeError, OSError):
+            pass
+    return datetime.now().strftime("%B %d, %Y")
+
+
 def get_certificate_logo_base64(settings=None):
     """
     証明書のロゴをbase64エンコードして取得
@@ -505,7 +520,7 @@ def load(app):
             "competition_phrase": (getattr(settings, "competition_phrase", "international cybersecurity competition") if settings else "international cybersecurity competition"),
             "event_id": (getattr(settings, "event_id", "") if settings else ""),
             "competition_date": datetime.now().strftime("%B %Y"),
-            "issue_date": datetime.now().strftime("%B %d, %Y"),
+            "issue_date": get_ctf_end_date_str(),
             "get_ordinal_suffix": get_ordinal_suffix,
             "is_preview": False,
             "total_teams": total_teams,
@@ -645,7 +660,7 @@ def load(app):
             "competition_phrase": (getattr(settings, "competition_phrase", "international cybersecurity competition") if settings else "international cybersecurity competition"),
             "event_id": (getattr(settings, "event_id", "") if settings else ""),
             "competition_date": datetime.now().strftime("%B %Y"),
-            "issue_date": datetime.now().strftime("%B %d, %Y"),
+            "issue_date": get_ctf_end_date_str(),
             "get_ordinal_suffix": get_ordinal_suffix,
             "is_preview": False,
             "total_teams": total_teams,

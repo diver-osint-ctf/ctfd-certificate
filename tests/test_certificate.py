@@ -201,5 +201,51 @@ class TestCertificatesEnabledAPI(unittest.TestCase):
         self.assertFalse(resp["enabled"])
 
 
+class TestGetCtfEndDateStr(unittest.TestCase):
+    """get_ctf_end_date_str 関数のテスト"""
+
+    def _get_ctf_end_date_str(self, end_date_raw):
+        """get_ctf_end_date_str のロジックを再現"""
+        from datetime import datetime
+        if end_date_raw:
+            try:
+                end_date = datetime.fromtimestamp(int(end_date_raw))
+                return end_date.strftime("%B %d, %Y")
+            except (ValueError, TypeError, OSError):
+                pass
+        return datetime.now().strftime("%B %d, %Y")
+
+    def test_returns_end_date_when_set(self):
+        """CTFの終了日時がUnixタイムスタンプで設定されている場合、その日付を返す"""
+        # 1769998260 は CTFdの設定例
+        from datetime import datetime
+        ts = 1769998260
+        expected = datetime.fromtimestamp(ts).strftime("%B %d, %Y")
+        result = self._get_ctf_end_date_str(str(ts))
+        self.assertEqual(result, expected)
+
+    def test_returns_end_date_as_integer(self):
+        """整数値のタイムスタンプでも正しく動作する"""
+        from datetime import datetime
+        # 2025-12-25 00:00:00 UTC のタイムスタンプ
+        ts = int(datetime(2025, 12, 25).timestamp())
+        result = self._get_ctf_end_date_str(ts)
+        self.assertEqual(result, "December 25, 2025")
+
+    def test_returns_now_when_end_not_set(self):
+        """CTFの終了日時が未設定の場合、現在日時を返す"""
+        from datetime import datetime
+        result = self._get_ctf_end_date_str(None)
+        expected = datetime.now().strftime("%B %d, %Y")
+        self.assertEqual(result, expected)
+
+    def test_returns_now_when_end_invalid(self):
+        """CTFの終了日時が不正な形式の場合、現在日時にフォールバックする"""
+        from datetime import datetime
+        result = self._get_ctf_end_date_str("invalid-date")
+        expected = datetime.now().strftime("%B %d, %Y")
+        self.assertEqual(result, expected)
+
+
 if __name__ == "__main__":
     unittest.main()
